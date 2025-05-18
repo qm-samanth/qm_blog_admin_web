@@ -265,8 +265,11 @@ function App() {
     );
   } else {
     content = (
-      <AdminLayout onLogout={handleLogout}>
-        <MenuBar page={page} setPage={setPage} />
+      <AdminLayout
+        onLogout={handleLogout}
+        selectedMenu={page}
+        onMenuChange={(key) => setPage(key as 'dashboard' | 'posts')}
+      >
         {page === 'dashboard' && <Dashboard />}
         {page === 'posts' && <Posts />}
       </AdminLayout>
@@ -274,20 +277,7 @@ function App() {
   }
 
   return content;
-
-// MenuBar component for navigation
-function MenuBar({ page, setPage }: { page: string; setPage: (p: 'dashboard' | 'posts') => void }) {
-  return (
-    <div style={{ marginBottom: 24 }}>
-      <div style={{ display: 'flex', gap: 16 }}>
-        <Button type={page === 'dashboard' ? 'primary' : 'default'} onClick={() => setPage('dashboard')}>Dashboard</Button>
-        <Button type={page === 'posts' ? 'primary' : 'default'} onClick={() => setPage('posts')}>Posts</Button>
-      </div>
-    </div>
-  );
-}
-
- 
+//
   // JWT expiration check (optional, basic)
   useEffect(() => {
     const token = localStorage.getItem('token');

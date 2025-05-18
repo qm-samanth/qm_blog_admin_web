@@ -1,5 +1,6 @@
 
 import { Layout, Menu, Dropdown, Avatar } from 'antd';
+import { CaretDownFilled } from '@ant-design/icons';
 import type { ReactNode } from 'react';
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -15,29 +16,24 @@ export default function AdminLayout({ children, onLogout, selectedMenu = 'dashbo
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
   if (token) {
     try {
-      const [, payload] = token.split('.');
-      const decoded = JSON.parse(atob(payload));
-      username = decoded.username || decoded.email || 'User';
+      
+      username = localStorage.getItem('username') || 'User';
     } catch {}
   }
   return (
     <Layout style={{ minHeight: '100vh', width: '100vw' }}>
-      <Header style={{ background: '#fff', padding: 0, minHeight: 56, borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <Header style={{ background: '#0066e6', padding: 0, minHeight: 56, borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-          <div style={{ color: '#001529', fontWeight: 'bold', fontSize: 20, letterSpacing: 1, padding: '0 32px' }}>
+          <div style={{ color: '#fff', fontWeight: 'bold', fontSize: 20, letterSpacing: 1, padding: '0 32px' }}>
             QM Blog Admin
           </div>
           <Menu
             mode="horizontal"
             selectedKeys={[selectedMenu]}
-            style={{ borderBottom: 'none', fontSize: 16, minWidth: 500 }}
+            style={{ borderBottom: 'none', fontSize: 16, minWidth: 500, background: '#0066e6' }}
             items={[
-              { key: 'dashboard', label: 'Dashboard' },
-              { key: 'posts', label: 'Posts' },
-              { key: 'categories', label: 'Categories' },
-              { key: 'tags', label: 'Tags' },
-              { key: 'authors', label: 'Authors' },
-              { key: 'settings', label: 'Settings' },
+              { key: 'dashboard', label: <span style={{ color: '#fff', fontWeight: selectedMenu === 'dashboard' ? 'bold' : 'normal' }}>Dashboard</span> },
+              { key: 'posts', label: <span style={{ color: '#fff', fontWeight: selectedMenu === 'posts' ? 'bold' : 'normal' }}>Posts</span> },
             ]}
             onClick={({ key }) => onMenuChange && onMenuChange(key)}
           />
@@ -47,7 +43,7 @@ export default function AdminLayout({ children, onLogout, selectedMenu = 'dashbo
             <Dropdown
               overlay={
                 <Menu>
-                  <Menu.Item key="logout" onClick={onLogout} danger>
+                  <Menu.Item key="logout" onClick={onLogout} style={{ color: '#0066e6', fontWeight: 600 }}>
                     Logout
                   </Menu.Item>
                 </Menu>
@@ -59,7 +55,8 @@ export default function AdminLayout({ children, onLogout, selectedMenu = 'dashbo
                 <Avatar style={{ backgroundColor: '#1890ff', verticalAlign: 'middle' }} size="small">
                   {username.charAt(0).toUpperCase()}
                 </Avatar>
-                <span style={{ fontWeight: 500, color: '#222' }}>{username}</span>
+                <span style={{ fontWeight: 500, color: '#fff' }}>{username}</span>
+                <CaretDownFilled style={{ color: '#fff', fontSize: 14, marginLeft: 2 }} />
               </div>
             </Dropdown>
           )}
