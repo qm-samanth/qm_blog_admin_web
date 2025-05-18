@@ -7,16 +7,18 @@ import axios from 'axios';
 
 interface BlogPost {
   id: number;
+  documentId?: string;
   title: string;
   slug: string;
   content: string;
-  publishedAt: string;
+  publishedAt?: string | null;
+  updatedAt?: string | null;
+  blogstatus?: string;
   categories?: any;
   tags?: any;
   localizations?: any;
   status?: string;
   seo?: any;
-  // Add any other fields you want to support
 }
 
 
@@ -35,38 +37,67 @@ export default function Posts() {
   }, []);
 
 
-  // Fetch author id first, then fetch posts for that author
+  // Fetch author documentId first, then fetch posts for that author
   const fetchAuthorAndPosts = async () => {
     setLoading(true);
     try {
-      // 1. Get author id for current user
+      // 1. Get author info for current user
       const authorRes = await axios.get('http://localhost:1337/api/authors?populate=user', {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       const authors = authorRes.data.data || [];
       const currentAuthor = authors.find((a: any) => a.user && (a.user.username === username || a.user.email === username));
-      const authorId = currentAuthor ? currentAuthor.id : null;
-      if (!authorId) {
+      const authorDocumentId = currentAuthor ? currentAuthor.documentId : null;
+      if (!authorDocumentId) {
         setPosts([]);
         setLoading(false);
         return;
       }
-      // 2. Fetch posts for this author
-      const postsRes = await axios.get(`http://localhost:1337/api/blog-posts?populate=authors&filters[authors][id]=${authorId}`,
-        { headers: token ? { Authorization: `Bearer ${token}` } : {} });
-      const postsData = postsRes.data.data || [];
-      // Map API response to BlogPost[] and sort by publishedAt descending (latest first)
-      const mappedPosts = postsData.map((p: any) => {
-        const docId = (p.documentId || p.attributes?.documentId || p.id || p.attributes?.id);
-        return {
-          id: p.id,
-          documentId: docId ? String(docId) : undefined,
-          title: p.title || p.attributes?.title,
-          slug: p.slug || p.attributes?.slug,
-          content: p.content || p.attributes?.content,
-          publishedAt: p.publishedAt || p.attributes?.publishedAt,
+      // 2. Fetch published posts for this author
+      const publishedPromise = axios.get(
+        `http://localhost:1337/api/blog-posts?populate=authors&status=published&filters[authors][documentId][$eq]=${authorDocumentId}`,
+        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+      );
+      // 3. Fetch draft posts for this author
+      const draftPromise = axios.get(
+        `http://localhost:1337/api/blog-posts?populate=authors&status=draft&filters[authors][documentId][$eq]=${authorDocumentId}`,
+        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+      );
+      // Wait for both
+      const [publishedRes, draftRes] = await Promise.all([publishedPromise, draftPromise]);
+      const publishedData = (publishedRes.data.data || publishedRes.data.body?.data || []);
+      const draftData = (draftRes.data.data || draftRes.data.body?.data || []);
+      // Merge by documentId, keeping only the one with the latest datetime (publishedAt or updatedAt)
+      const postsByDocId: { [docId: string]: any } = {};
+      const allPosts = [...publishedData, ...draftData];
+      allPosts.forEach((p: any) => {
+        const docId = p.documentId;
+        const prev = postsByDocId[docId];
+        // Get latest datetime for this post
+        const getLatest = (post: any) => {
+          const pub = post.publishedAt ? new Date(post.publishedAt).getTime() : 0;
+          const upd = post.updatedAt ? new Date(post.updatedAt).getTime() : 0;
+          return Math.max(pub, upd);
         };
+        if (!prev) {
+          postsByDocId[docId] = p;
+        } else {
+          // If this post is newer, replace
+          if (getLatest(p) > getLatest(prev)) {
+            postsByDocId[docId] = p;
+          }
+        }
       });
+      const mappedPosts = Object.values(postsByDocId).map((p: any) => ({
+        id: p.id,
+        documentId: p.documentId,
+        title: p.title,
+        slug: p.slug,
+        content: p.content,
+        publishedAt: p.publishedAt,
+        updatedAt: p.updatedAt,
+        blogstatus: p.blogstatus,
+      }));
       mappedPosts.sort((a: BlogPost, b: BlogPost) => {
         // If publishedAt is missing, treat as oldest
         if (!a.publishedAt && !b.publishedAt) return 0;
@@ -101,6 +132,21 @@ export default function Posts() {
 
 
 
+  // Helper to format date to Indian 12-hour format
+  const formatIndianDateTime = (dateString?: string | null) => {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    return date.toLocaleString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+  };
+
   const columns = [
     {
       title: 'Title',
@@ -114,10 +160,25 @@ export default function Posts() {
       key: 'slug',
     },
     {
-      title: 'Published',
+      title: 'Status',
+      dataIndex: 'publishedAt',
+      key: 'status',
+      render: (_: any, record: BlogPost) =>
+        !record.publishedAt
+          ? <Tag color="orange">Draft</Tag>
+          : <Tag color="green">Published</Tag>,
+    },
+    {
+      title: 'Published At',
       dataIndex: 'publishedAt',
       key: 'publishedAt',
-      render: (date: string) => date ? <Tag color="green">Yes</Tag> : <Tag color="red">No</Tag>,
+      render: (date: string) => formatIndianDateTime(date),
+    },
+    {
+      title: 'Updated At',
+      dataIndex: 'updatedAt',
+      key: 'updatedAt',
+      render: (date: string) => formatIndianDateTime(date),
     },
     {
       title: 'Actions',
