@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { Table, Button, Space, Popconfirm, message, Tag } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
 
@@ -22,6 +23,8 @@ interface BlogPost {
 export default function Posts() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(false);
+  const [formVisible, setFormVisible] = useState(false);
+  const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   // Removed unused form/edit state
   const username = localStorage.getItem('username');
   const token = localStorage.getItem('token');
@@ -64,7 +67,7 @@ export default function Posts() {
           publishedAt: p.publishedAt || p.attributes?.publishedAt,
         };
       });
-      mappedPosts.sort((a, b) => {
+      mappedPosts.sort((a: BlogPost, b: BlogPost) => {
         // If publishedAt is missing, treat as oldest
         if (!a.publishedAt && !b.publishedAt) return 0;
         if (!a.publishedAt) return 1;
@@ -126,7 +129,7 @@ export default function Posts() {
           <Space>
             {/* Edit button removed */}
             <Popconfirm title="Delete this post?" onConfirm={() => handleDelete(docId)} okText="Yes" cancelText="No">
-              <Button type="link" danger>Delete</Button>
+              <Button type="text" icon={<DeleteOutlined style={{ color: '#0066e6', fontSize: 18 }} />} />
             </Popconfirm>
           </Space>
         );
