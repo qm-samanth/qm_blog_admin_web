@@ -132,7 +132,7 @@ function App() {
               fontSize: 'clamp(32px, 8vw, 80px)',
               fontWeight: 900,
               color: '#fff',
-              opacity: 0.08,
+              opacity: 0.2,
               letterSpacing: 4,
               whiteSpace: 'nowrap',
             }}>
@@ -143,7 +143,7 @@ function App() {
               fontStyle: 'italic',
               fontFamily: '"Dancing Script", cursive',
               color: '#fff',
-              opacity: 0.08,
+              opacity: 0.2,
               marginTop: -12,
               fontWeight: 400,
               letterSpacing: 1,
@@ -229,9 +229,7 @@ function App() {
                 LOGIN
               </Button>
             </Form.Item>
-            <div style={{ textAlign: 'center', marginBottom: 8 }}>
-              <a href="#" style={{ color: '#0066e6', fontSize: 13 }}>Forgot password?</a>
-            </div>
+            
             {loginError && <div style={{ color: 'red', marginTop: 8, textAlign: 'center' }}>{loginError}</div>}
           </Form>
         </div>
