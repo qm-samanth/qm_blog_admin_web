@@ -6,6 +6,7 @@ interface FormValues {
   name: string;
   bio: string;
   profile_pic_url?: string;
+  social_links?: string | null;
 }
 
 interface AuthorProfile {
@@ -14,11 +15,11 @@ interface AuthorProfile {
   name: string;
   slug: string;
   bio: string;
-  social_links?: string | null;
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
   profile_pic_url?: string | null;
+  social_links?: string | null;
 }
 
 const EditProfile: React.FC = () => {
@@ -86,7 +87,8 @@ const EditProfile: React.FC = () => {
                     data: {
                       name: values.name,
                       bio: values.bio,
-                      profile_pic_url: values.profile_pic_url
+                      profile_pic_url: values.profile_pic_url,
+                      social_links: values.social_links
                     }
                   }, {
                     headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -97,7 +99,8 @@ const EditProfile: React.FC = () => {
                     ...profile,
                     name: values.name,
                     bio: values.bio,
-                    profile_pic_url: values.profile_pic_url
+                    profile_pic_url: values.profile_pic_url,
+                    social_links: values.social_links
                   });
                 } catch (e) {
                   message.error('Failed to update profile');
@@ -184,6 +187,12 @@ const EditProfile: React.FC = () => {
                   <Form.Item name="bio" label="Bio" style={{ height: 'auto' }}>
                     <Input.TextArea placeholder="Tell us about yourself..." rows={4} />
                   </Form.Item>
+                  <Form.Item name="social_links" label="Social Links (JSON)" style={{ height: 'auto' }}>
+  <Input.TextArea
+    placeholder='{"twitter": "https://twitter.com/yourhandle", "linkedin": "https://linkedin.com/in/yourprofile"}'
+    rows={4}
+  />
+</Form.Item>
                   
                   <div style={{ marginTop: 24, display: 'flex', justifyContent: 'flex-end', gap: 16 }}>
                     <Button 
