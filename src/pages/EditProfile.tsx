@@ -111,13 +111,13 @@ const EditProfile: React.FC = () => {
                 <Col xs={24} md={8} style={{ textAlign: 'center' }}>
                   <div style={{ marginBottom: 32 }}>
                     <div style={{
-                      width: 220,
-                      height: 220,
+                      width: 250,
+                      height: 250,
                       margin: '0 auto 24px auto',
-                      borderRadius: 24,
+                      borderRadius: 18,
                       overflow: 'hidden',
-                      border: '6px solid #f0f0f0',
-                      boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+                      border: '4px solid #f0f0f0',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.10)',
                       background: '#0066e6',
                       display: 'flex',
                       alignItems: 'center',
@@ -127,7 +127,7 @@ const EditProfile: React.FC = () => {
                         <img
                           src={profile.profile_pic_url}
                           alt="Profile"
-                          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 24 }}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 12 }}
                         />
                       ) : (
                         <UserOutlined style={{ fontSize: 100, color: '#fff' }} />
