@@ -42,8 +42,14 @@ export default function AdminLayout({ children, onLogout, selectedMenu = 'dashbo
           {onLogout && (
             <Dropdown
               overlay={
-                <Menu>
-                  <Menu.Item key="logout" onClick={onLogout} style={{ color: '#0066e6', fontWeight: 600 }}>
+                <Menu onClick={({ key }) => {
+                  if (key === 'logout') onLogout();
+                  if (key === 'edit-profile' && onMenuChange) onMenuChange('edit-profile');
+                }}>
+                  <Menu.Item key="edit-profile" style={{ color: '#0066e6', fontWeight: 600 }}>
+                    Edit Profile
+                  </Menu.Item>
+                  <Menu.Item key="logout" style={{ color: '#0066e6', fontWeight: 600 }}>
                     Logout
                   </Menu.Item>
                 </Menu>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import AdminLayout from './pages/AdminLayout';
 import Dashboard from './pages/Dashboard';
 import Posts from './pages/Posts';
+import EditProfile from './pages/EditProfile';
 import { Form, Input, Button, message } from 'antd';
 import axios from 'axios';
 import 'antd/dist/reset.css';
@@ -93,7 +94,7 @@ function App() {
 
 
   // Simple client-side routing for menu navigation
-  const [page, setPage] = useState<'dashboard' | 'posts'>('dashboard');
+  const [page, setPage] = useState<'dashboard' | 'posts' | 'edit-profile'>('dashboard');
 
   let content;
   if (!isAuthenticated) {
@@ -268,10 +269,11 @@ function App() {
       <AdminLayout
         onLogout={handleLogout}
         selectedMenu={page}
-        onMenuChange={(key) => setPage(key as 'dashboard' | 'posts')}
+        onMenuChange={(key) => setPage(key as 'dashboard' | 'posts' | 'edit-profile')}
       >
         {page === 'dashboard' && <Dashboard />}
         {page === 'posts' && <Posts />}
+        {page === 'edit-profile' && <EditProfile />}
       </AdminLayout>
     );
   }
