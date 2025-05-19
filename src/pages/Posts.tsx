@@ -67,37 +67,72 @@ export default function Posts() {
       const [publishedRes, draftRes] = await Promise.all([publishedPromise, draftPromise]);
       const publishedData = (publishedRes.data.data || publishedRes.data.body?.data || []);
       const draftData = (draftRes.data.data || draftRes.data.body?.data || []);
-      // Merge by documentId, keeping only the one with the latest datetime (publishedAt or updatedAt)
-      const postsByDocId: { [docId: string]: any } = {};
+      // Count documentId occurrences across both lists
       const allPosts = [...publishedData, ...draftData];
+      const docIdCounts: { [docId: string]: number } = {};
       allPosts.forEach((p: any) => {
-        const docId = p.documentId;
-        const prev = postsByDocId[docId];
-        // Get latest datetime for this post
-        const getLatest = (post: any) => {
-          const pub = post.publishedAt ? new Date(post.publishedAt).getTime() : 0;
-          const upd = post.updatedAt ? new Date(post.updatedAt).getTime() : 0;
-          return Math.max(pub, upd);
-        };
-        if (!prev) {
-          postsByDocId[docId] = p;
-        } else {
-          // If this post is newer, replace
-          if (getLatest(p) > getLatest(prev)) {
-            postsByDocId[docId] = p;
-          }
+        if (p.documentId) {
+          docIdCounts[p.documentId] = (docIdCounts[p.documentId] || 0) + 1;
         }
       });
-      const mappedPosts = Object.values(postsByDocId).map((p: any) => ({
-        id: p.id,
-        documentId: p.documentId,
-        title: p.title,
-        slug: p.slug,
-        content: p.content,
-        publishedAt: p.publishedAt,
-        updatedAt: p.updatedAt,
-        blogstatus: p.blogstatus,
-      }));
+
+      // For each documentId, if it appears only once, use as is. If it appears twice, merge and set status logic.
+      const postsByDocId: { [docId: string]: any[] } = {};
+      allPosts.forEach((p: any) => {
+        if (!postsByDocId[p.documentId]) postsByDocId[p.documentId] = [];
+        postsByDocId[p.documentId].push(p);
+      });
+
+      const mappedPosts = Object.entries(postsByDocId).map(([docId, postsArr]) => {
+        if (postsArr.length === 1) {
+          // Only one blog for this documentId
+          const p = postsArr[0];
+          return {
+            id: p.id,
+            documentId: p.documentId,
+            title: p.title,
+            slug: p.slug,
+            content: p.content,
+            publishedAt: p.publishedAt,
+            updatedAt: p.updatedAt,
+            blogstatus: p.blogstatus,
+            _statusType: !p.publishedAt ? 'Draft' : 'Published',
+          };
+        } else {
+          // Two blogs for this documentId, compare publishedAt and updatedAt
+          const p1 = postsArr[0];
+          const p2 = postsArr[1];
+          // Find latest publishedAt and updatedAt
+          const pub1 = p1.publishedAt ? new Date(p1.publishedAt).getTime() : 0;
+          const pub2 = p2.publishedAt ? new Date(p2.publishedAt).getTime() : 0;
+          const upd1 = p1.updatedAt ? new Date(p1.updatedAt).getTime() : 0;
+          const upd2 = p2.updatedAt ? new Date(p2.updatedAt).getTime() : 0;
+          const latestPublishedAt = pub1 > pub2 ? p1.publishedAt : p2.publishedAt;
+          const latestUpdatedAt = upd1 > upd2 ? p1.updatedAt : p2.updatedAt;
+          // Determine status
+          let _statusType = 'Published';
+          if (latestUpdatedAt && latestPublishedAt) {
+            if (new Date(latestUpdatedAt).getTime() > new Date(latestPublishedAt).getTime()) {
+              _statusType = 'Modified';
+            } else {
+              _statusType = 'Published';
+            }
+          }
+          // Use the post with the latest of publishedAt/updatedAt for display
+          let displayPost = p1;
+          const latestTime = Math.max(pub1, pub2, upd1, upd2);
+          if (
+            (p2.publishedAt && new Date(p2.publishedAt).getTime() === latestTime) ||
+            (p2.updatedAt && new Date(p2.updatedAt).getTime() === latestTime)
+          ) {
+            displayPost = p2;
+          }
+          return {
+            ...displayPost,
+            _statusType,
+          };
+        }
+      });
       mappedPosts.sort((a: BlogPost, b: BlogPost) => {
         // If publishedAt is missing, treat as oldest
         if (!a.publishedAt && !b.publishedAt) return 0;
@@ -147,6 +182,18 @@ export default function Posts() {
     });
   };
 
+  // Helper to determine status based on unique/duplicate documentId logic
+  const getStatusTag = (record: BlogPost & { _statusType?: string }) => {
+    if (record._statusType === 'Draft') {
+      return <Tag color="orange">Draft</Tag>;
+    }
+    if (record._statusType === 'Modified') {
+      return <Tag color="blue">Modified</Tag>;
+    }
+    // Default to Published
+    return <Tag color="green">Published</Tag>;
+  };
+
   const columns = [
     {
       title: 'Title',
@@ -161,12 +208,9 @@ export default function Posts() {
     },
     {
       title: 'Status',
-      dataIndex: 'publishedAt',
+      dataIndex: 'status',
       key: 'status',
-      render: (_: any, record: BlogPost) =>
-        !record.publishedAt
-          ? <Tag color="orange">Draft</Tag>
-          : <Tag color="green">Published</Tag>,
+      render: (_: any, record: BlogPost) => getStatusTag(record),
     },
     {
       title: 'Published At',
