@@ -83,7 +83,7 @@ const EditProfile: React.FC = () => {
               onFinish={async (values: FormValues) => {
                 setSaving(true);
                 try {
-                  await axios.put(`http://localhost:1337/api/authors/${profile.id}`, {
+                  await axios.put(`http://localhost:1337/api/authors/${profile.documentId}`, {
                     data: {
                       name: values.name,
                       bio: values.bio,
