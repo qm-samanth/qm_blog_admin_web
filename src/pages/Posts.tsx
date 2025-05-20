@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
-import { Table, Button, Space, Popconfirm, message, Tag } from 'antd';
-import { DeleteOutlined } from '@ant-design/icons';
+import { Table, Button, Space, Popconfirm, message, Tag, Tooltip } from 'antd';
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
 
@@ -21,13 +21,14 @@ interface BlogPost {
   seo?: any;
 }
 
+interface PostsProps {
+  onAddPost?: () => void;
+  onEditPost?: (documentId: string) => void;
+}
 
-export default function Posts() {
+export default function Posts({ onAddPost, onEditPost }: PostsProps) {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(false);
-  const [formVisible, setFormVisible] = useState(false);
-  const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
-  // Removed unused form/edit state
   const username = localStorage.getItem('username');
   const token = localStorage.getItem('token');
 
@@ -232,7 +233,13 @@ export default function Posts() {
         const docId = record.documentId || String(record.id);
         return (
           <Space>
-            {/* Edit button removed */}
+            <Tooltip title="Edit">
+              <Button
+                type="text"
+                icon={<EditOutlined style={{ color: '#0066e6', fontSize: 18 }} />}
+                onClick={() => onEditPost && onEditPost(docId)}
+              />
+            </Tooltip>
             <Popconfirm title="Delete this post?" onConfirm={() => handleDelete(docId)} okText="Yes" cancelText="No">
               <Button type="text" icon={<DeleteOutlined style={{ color: '#0066e6', fontSize: 18 }} />} />
             </Popconfirm>
@@ -247,7 +254,7 @@ export default function Posts() {
   return (
     <div style={{ padding: 32 }}>
       <h2 style={{ fontWeight: 700, fontSize: 24, marginBottom: 24 }}>My Posts</h2>
-      <Button type="primary" style={{ marginBottom: 16 }} onClick={() => { setEditingPost(null); setFormVisible(true); }}>
+      <Button type="primary" style={{ marginBottom: 16 }} onClick={() => onAddPost && onAddPost()}>
         New Post
       </Button>
       <Table
@@ -257,7 +264,6 @@ export default function Posts() {
         loading={loading}
         pagination={{ pageSize: 10 }}
       />
-      
     </div>
   );
 }

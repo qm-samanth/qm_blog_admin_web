@@ -1,8 +1,10 @@
+
 import { useState, useEffect } from 'react';
 import AdminLayout from './pages/AdminLayout';
 import Dashboard from './pages/Dashboard';
 import Posts from './pages/Posts';
 import EditProfile from './pages/EditProfile';
+import PostForm from './pages/PostForm';
 import { Form, Input, Button, message } from 'antd';
 import axios from 'axios';
 import 'antd/dist/reset.css';
@@ -94,7 +96,12 @@ function App() {
 
 
   // Simple client-side routing for menu navigation
-  const [page, setPage] = useState<'dashboard' | 'posts' | 'edit-profile'>('dashboard');
+  type PageState =
+    | { page: 'dashboard' }
+    | { page: 'posts' }
+    | { page: 'edit-profile' }
+    | { page: 'post-form'; documentId?: string };
+  const [page, setPage] = useState<PageState>({ page: 'dashboard' });
 
   let content;
   if (!isAuthenticated) {
@@ -265,45 +272,35 @@ function App() {
       </div>
     );
   } else {
+    let selectedMenu = 'dashboard';
+    if (page.page === 'posts' || page.page === 'post-form') selectedMenu = 'posts';
+    if (page.page === 'edit-profile') selectedMenu = 'edit-profile';
     content = (
       <AdminLayout
         onLogout={handleLogout}
-        selectedMenu={page}
-        onMenuChange={(key) => setPage(key as 'dashboard' | 'posts' | 'edit-profile')}
+        selectedMenu={selectedMenu}
+        onMenuChange={(key) => {
+          if (key === 'dashboard') setPage({ page: 'dashboard' });
+          if (key === 'posts') setPage({ page: 'posts' });
+          if (key === 'edit-profile') setPage({ page: 'edit-profile' });
+        }}
       >
-        {page === 'dashboard' && <Dashboard />}
-        {page === 'posts' && <Posts />}
-        {page === 'edit-profile' && <EditProfile />}
+        {page.page === 'dashboard' && <Dashboard />}
+        {page.page === 'posts' && (
+          <Posts
+            onAddPost={() => setPage({ page: 'post-form' })}
+            onEditPost={(documentId: string) => setPage({ page: 'post-form', documentId })}
+          />
+        )}
+        {page.page === 'edit-profile' && <EditProfile />}
+        {page.page === 'post-form' && (
+          <PostForm documentId={page.documentId} />
+        )}
       </AdminLayout>
     );
   }
 
   return content;
-//
-  // JWT expiration check (optional, basic)
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const [, payload] = token.split('.');
-        const decoded = JSON.parse(atob(payload));
-        if (decoded.exp && Date.now() / 1000 > decoded.exp) {
-          handleLogout();
-          message.warning('Session expired. Please log in again.');
-        }
-      } catch (e) {
-        // Invalid token, force logout
-        handleLogout();
-      }
-    }
-  }, [isAuthenticated]);
-
-  return (
-    <AdminLayout onLogout={handleLogout}>
-      <h2>Dashboard</h2>
-      <Dashboard />
-    </AdminLayout>
-  );
 }
 
 export default App;

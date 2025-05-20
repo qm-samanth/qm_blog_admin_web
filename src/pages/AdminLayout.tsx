@@ -22,7 +22,21 @@ export default function AdminLayout({ children, onLogout, selectedMenu = 'dashbo
   }
   return (
     <Layout style={{ minHeight: '100vh', width: '100vw' }}>
-      <Header style={{ background: '#0066e6', padding: 0, minHeight: 56, borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <Header style={{
+        background: '#0066e6',
+        padding: 0,
+        minHeight: 56,
+        height: 56,
+        borderBottom: '1px solid #f0f0f0',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        zIndex: 100
+      }}>
         <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
           <div style={{ color: '#fff', fontWeight: 'bold', fontSize: 20, letterSpacing: 1, padding: '0 32px' }}>
             QM Blog Admin
@@ -30,7 +44,7 @@ export default function AdminLayout({ children, onLogout, selectedMenu = 'dashbo
           <Menu
             mode="horizontal"
             selectedKeys={[selectedMenu]}
-            style={{ borderBottom: 'none', fontSize: 16, minWidth: 500, background: '#0066e6' }}
+            style={{ borderBottom: 'none', fontSize: 16, minWidth: 500, background: 'transparent' }}
             items={[
               { key: 'dashboard', label: <span style={{ color: '#fff', fontWeight: selectedMenu === 'dashboard' ? 'bold' : 'normal' }}>Dashboard</span> },
               { key: 'posts', label: <span style={{ color: '#fff', fontWeight: selectedMenu === 'posts' ? 'bold' : 'normal' }}>Posts</span> },
@@ -68,7 +82,13 @@ export default function AdminLayout({ children, onLogout, selectedMenu = 'dashbo
           )}
         </div>
       </Header>
-      <Content style={{ margin: '0', background: '#f5f6fa', minHeight: 'calc(100vh - 112px)', width: '100%' }}>
+      <Content style={{
+        margin: '0',
+        background: '#f5f6fa',
+        minHeight: 'calc(100vh - 112px)',
+        width: '100%',
+        marginTop: 56
+      }}>
         <div style={{ width: '100%', padding: '32px 24px 40px 24px' }}>{children}</div>
       </Content>
       <Footer style={{ textAlign: 'center', background: '#f0f2f5' }}>
