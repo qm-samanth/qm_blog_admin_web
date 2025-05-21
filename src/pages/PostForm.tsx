@@ -30,6 +30,11 @@ const PostForm: React.FC<PostFormProps> = ({ documentId, onSuccess }) => {
       fetchCurrentAuthor();
     }
     // eslint-disable-next-line
+    // Reset form state on unmount to avoid stale state after navigation
+    return () => {
+      setFieldsToSet(null);
+      form.resetFields();
+    };
   }, [documentId]);
 
   // No local state for title; use AntD Form only
@@ -135,10 +140,13 @@ const PostForm: React.FC<PostFormProps> = ({ documentId, onSuccess }) => {
         ...values,
         json_ld,
       };
+      // Always send only the intended status param
       const status = publish ? 'published' : 'draft';
       let res;
       if (documentId) {
-        res = await axios.put(`${API_BASE_URL}/blog-posts/${documentId}?status=${status}`, { data: payload }, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+        // Remove any query params from documentId
+        const docId = documentId.split('?')[0];
+        res = await axios.put(`${API_BASE_URL}/blog-posts/${docId}?status=${status}`, { data: payload }, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       } else {
         res = await axios.post(`${API_BASE_URL}/blog-posts?status=${status}`, { data: payload }, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       }

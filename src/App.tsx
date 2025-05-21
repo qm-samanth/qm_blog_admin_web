@@ -295,7 +295,10 @@ function App() {
         )}
         {page.page === 'edit-profile' && <EditProfile />}
         {page.page === 'post-form' && (
-          <PostForm documentId={page.documentId} />
+          <PostForm 
+            documentId={page.documentId}
+            onSuccess={() => setPage({ page: 'posts' })}
+          />
         )}
       </AdminLayout>
     );
