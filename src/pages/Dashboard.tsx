@@ -28,7 +28,7 @@ export default function Dashboard() {
   const [authors, setAuthors] = useState<Author[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
-    total: 0,
+    total: 0, // This will be set from QualMinds API
     published: 0,
     drafts: 0,
     scheduled: 0,
@@ -44,8 +44,21 @@ export default function Dashboard() {
       setLoading(true);
       try {
         const token = localStorage.getItem('token');
+        // 1. Fetch total posts from QualMinds (all posts)
+        let totalPosts = 0;
+        try {
+          const totalRes = await axios.get('http://localhost:1337/api/blog-posts', {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          });
+          totalPosts = totalRes.data?.meta?.pagination?.total || 0;
+        } catch (err) {
+          // fallback: leave totalPosts as 0
+        }
+
+        // 2. Fetch author/user-specific data as before
         if (!email) {
           setLoading(false);
+          setStats(prev => ({ ...prev, total: totalPosts }));
           return;
         }
         const res = await axios.get(
@@ -60,7 +73,7 @@ export default function Dashboard() {
         const currentAuthor = authorsData[0];
         const userPosts = currentAuthor ? (currentAuthor.blog_posts || []) : [];
         setStats({
-          total: userPosts.length,
+          total: totalPosts, // Use QualMinds total
           published: userPosts.filter((p: any) => p.blogstatus === 'Published').length,
           drafts: userPosts.filter((p: any) => p.blogstatus === 'Draft').length,
           scheduled: userPosts.filter((p: any) => p.blogstatus === 'Scheduled').length,
@@ -192,8 +205,17 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+      {/* Stat Labels */}
+      <div style={{ display: 'flex', gap: 24, marginBottom: 8, width: '100%' }}>
+        <div style={{ flex: 1, textAlign: 'left', fontWeight: 700, fontSize: 15, color: '##222', letterSpacing: 0.5, paddingLeft: 2 }}>
+          Total QualMinds Posts
+        </div>
+        <div style={{ flex: 3, textAlign: 'left', fontWeight: 700, fontSize: 15, color: '#222', letterSpacing: 0.5, paddingLeft: 2 }}>
+          Your Contribution
+        </div>
+      </div>
       <div style={{ display: 'flex', gap: 24, marginBottom: 32, width: '100%' }}>
-        {/* (Total Posts) */}
+        {/* (Total Posts) - QualMinds */}
         <div style={{ flex: 1, display: 'flex', minHeight: 90, borderRadius: 8, boxShadow: '0 1px 4px #e0e0e0', background: 'linear-gradient(90deg, #2563eb 0%, #1e40af 100%)', overflow: 'hidden' }}>
           <div style={{ flex: '0 0 20%', background: 'linear-gradient(135deg, #2563eb 0%, #1e88e5 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
@@ -203,7 +225,7 @@ export default function Dashboard() {
             <div style={{ color: '#222', fontWeight: 700, fontSize: 22, marginTop: 2 }}>{stats.total}</div>
           </div>
         </div>
-        {/* Published */}
+        {/* Published - Your Contribution */}
         <div style={{ flex: 1, display: 'flex', minHeight: 90, borderRadius: 8, boxShadow: '0 1px 4px #e0e0e0', background: 'linear-gradient(90deg, #1e88e5 0%, #2563eb 100%)', overflow: 'hidden' }}>
           <div style={{ flex: '0 0 20%', background: 'linear-gradient(135deg, #2563eb 0%, #1e88e5 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M8 12l2 2 4-4" /></svg>
@@ -213,7 +235,7 @@ export default function Dashboard() {
             <div style={{ color: '#222', fontWeight: 700, fontSize: 22, marginTop: 2 }}>{stats.published}</div>
           </div>
         </div>
-        {/* Drafts */}
+        {/* Drafts - Your Contribution */}
         <div style={{ flex: 1, display: 'flex', minHeight: 90, borderRadius: 8, boxShadow: '0 1px 4px #e0e0e0', background: 'linear-gradient(90deg, #22c55e 0%, #15803d 100%)', overflow: 'hidden' }}>
           <div style={{ flex: '0 0 20%', background: 'linear-gradient(135deg, #2563eb 0%, #1e88e5 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18" /></svg>
@@ -223,7 +245,7 @@ export default function Dashboard() {
             <div style={{ color: '#222', fontWeight: 700, fontSize: 22, marginTop: 2 }}>{stats.drafts}</div>
           </div>
         </div>
-        {/* Scheduled */}
+        {/* Scheduled - Your Contribution */}
         <div style={{ flex: 1, display: 'flex', minHeight: 90, borderRadius: 8, boxShadow: '0 1px 4px #e0e0e0', background: 'linear-gradient(90deg, #f59e42 0%, #e65100 100%)', overflow: 'hidden' }}>
           <div style={{ flex: '0 0 20%', background: 'linear-gradient(135deg, #2563eb 0%, #1e88e5 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4l3 3" /></svg>
@@ -234,7 +256,7 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-      <Card title={<span style={{ fontWeight: 600 }}>Recent Posts</span>} loading={loading} variant="borderless" style={{ marginTop: 24, boxShadow: '0 1px 4px #e0e0e0', width: '100%', minHeight: 480 }}>
+      <Card title={<span style={{ fontWeight: 600 }}>Recently Published</span>} loading={loading} variant="borderless" style={{ marginTop: 24, boxShadow: '0 1px 4px #e0e0e0', width: '100%', minHeight: 480 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18, padding: '8px 0', minHeight: 220 }}>
           {(recentPosts.length > 0 ? recentPosts : [{ id: 0, title: 'Demo Post', slug: '', content: '', publishedAt: '', excerpt: '' }]).map((item, idx) => (
             <div
