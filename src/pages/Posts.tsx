@@ -20,6 +20,7 @@ interface BlogPost {
   localizations?: any;
   status?: string;
   seo?: any;
+  thumbnail_url?: string; // Added to fix TS error for thumbnail column
 }
 
 interface PostsProps {
@@ -198,6 +199,35 @@ export default function Posts({ onAddPost, onEditPost }: PostsProps) {
 
   const columns = [
     {
+      title: 'Thumbnail',
+      dataIndex: 'thumbnail_url',
+      key: 'thumbnail_url',
+      width: 120,
+      render: (_: any, record: BlogPost) => (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 100 }}>
+          {record.thumbnail_url ? (
+            <img
+              src={record.thumbnail_url}
+              alt="Thumbnail"
+              style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 6, marginBottom: 8, border: '1px solid #eee' }}
+            />
+          ) : (
+            <div style={{ width: 80, height: 80, background: '#f5f5f5', borderRadius: 6, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#bbb', fontSize: 12 }}>
+              No Image
+            </div>
+          )}
+          <div style={{ width: 80 }}>
+            <input
+              type="text"
+              value={record.thumbnail_url || ''}
+              readOnly
+              style={{ width: '100%', fontSize: 12, padding: 2, border: '1px solid #d9d9d9', borderRadius: 4, background: '#fafafa' }}
+            />
+          </div>
+        </div>
+      ),
+    },
+    {
       title: 'Title',
       dataIndex: 'title',
       key: 'title',
@@ -232,6 +262,7 @@ export default function Posts({ onAddPost, onEditPost }: PostsProps) {
       render: (_: any, record: BlogPost & { documentId?: string, _statusType?: string }) => {
         // Always use documentId as string, fallback to id as string
         const docId = record.documentId || String(record.id);
+        const id = record.id;
         // If status is Modified or Draft, pass a query param to indicate draft
         const isModified = record._statusType === 'Modified';
         const isDraft = record._statusType === 'Draft';
@@ -239,6 +270,20 @@ export default function Posts({ onAddPost, onEditPost }: PostsProps) {
         if (isModified || isDraft) {
           editDocId = `${docId}?status=draft`;
         }
+
+        // Handler for discarding draft (Modified)
+        const handleDiscardDraft = async () => {
+          try {
+            await axios.delete(`${API_BASE_URL}/blog-posts/${id}`, {
+              headers: token ? { Authorization: `Bearer ${token}` } : {},
+            });
+            message.success('Draft version discarded');
+            fetchAuthorAndPosts();
+          } catch (e) {
+            message.error('Failed to discard draft');
+          }
+        };
+
         return (
           <Space>
             <Tooltip title="Edit">
@@ -252,9 +297,46 @@ export default function Posts({ onAddPost, onEditPost }: PostsProps) {
                 }}
               />
             </Tooltip>
-            <Popconfirm title="Delete this post?" onConfirm={() => handleDelete(docId)} okText="Yes" cancelText="No">
-              <Button type="text" icon={<DeleteOutlined style={{ color: '#0066e6', fontSize: 18 }} />} />
-            </Popconfirm>
+            {isDraft && (
+              <Popconfirm
+                title={
+                  <span>
+                    Are you sure you want to delete this draft post?<br />
+                    <span style={{ color: '#d46b08', fontWeight: 500 }}>This cannot be undone.</span>
+                  </span>
+                }
+                onConfirm={() => handleDelete(docId)}
+                okText="Yes, Delete"
+                cancelText="No"
+              >
+                <Button type="text" icon={<DeleteOutlined style={{ color: '#0066e6', fontSize: 18 }} />} />
+              </Popconfirm>
+            )}
+            {isModified && (
+              <Popconfirm
+                title={
+                  <span>
+                    Are you sure you want to discard the draft version of this post?<br />
+                    <span style={{ color: '#d46b08', fontWeight: 500 }}>This cannot be undone.</span>
+                  </span>
+                }
+                onConfirm={handleDiscardDraft}
+                okText="Yes, Discard"
+                cancelText="No"
+              >
+                <Tooltip title="Discard Draft (Modified)">
+                  <Button
+                    type="text"
+                    icon={
+                      <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5 6h10M7 6V5a3 3 0 1 1 6 0v1m-9 2v7a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V8H4zm3 3v4m4-4v4" stroke="#d46b08" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    }
+                    style={{ color: '#d46b08' }}
+                  />
+                </Tooltip>
+              </Popconfirm>
+            )}
           </Space>
         );
       },

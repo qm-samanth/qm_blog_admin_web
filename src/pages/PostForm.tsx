@@ -172,7 +172,15 @@ const PostForm: React.FC<PostFormProps> = ({ documentId, onSuccess }) => {
   return (
     <div style={{ padding: 32, maxWidth: '100%' }}>
       <h2 style={{ fontWeight: 700, fontSize: 24, marginBottom: 24 }}>{documentId ? 'Edit Post' : 'Add New Post'}</h2>
-      <Card style={{ borderRadius: 8, boxShadow: '0 1px 4px #e0e0e0', width: '100%' }}>
+      <Card
+        style={{
+          borderRadius: 16,
+          boxShadow: '0 4px 24px 0 rgba(0,0,0,0.07)',
+          width: '100%',
+          background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+          border: 'none',
+        }}
+      >
         {loading ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
             <Spin size="large" />
@@ -187,105 +195,270 @@ const PostForm: React.FC<PostFormProps> = ({ documentId, onSuccess }) => {
             onFinish={(values) => onFinish(values, false)}
             style={{ width: '100%' }}
           >
-            <Row gutter={24}>
-              <Col xs={24} md={8}>
-                <Form.Item name="title" label="Title">
-                  <Input value={fieldsToSet?.title ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, title: e.target.value }))} />
-                </Form.Item>
-                <Form.Item name="slug" label="Slug">
-                  <Input value={fieldsToSet?.slug ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, slug: e.target.value }))} />
-                </Form.Item>
-                <Form.Item name="content" label="Content">
-                  <TextArea rows={6} value={fieldsToSet?.content ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, content: e.target.value }))} />
-                </Form.Item>
-                <Form.Item name="excerpt" label="Excerpt">
-                  <TextArea rows={2} value={fieldsToSet?.excerpt ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, excerpt: e.target.value }))} />
-                </Form.Item>
-                <Form.Item name="views" label="Views">
-                  <Input type="number" disabled={!documentId} value={fieldsToSet?.views ?? 0} onChange={e => setFieldsToSet((f: any) => ({ ...f, views: Number(e.target.value) }))} />
-                </Form.Item>
-                <Form.Item name="likes" label="Likes">
-                  <Input type="number" disabled={!documentId} value={fieldsToSet?.likes ?? 0} onChange={e => setFieldsToSet((f: any) => ({ ...f, likes: Number(e.target.value) }))} />
-                </Form.Item>
-              </Col>
-              <Col xs={24} md={8}>
-                <Form.Item name="categories" label="Categories">
-                  <Select
-                    mode="multiple"
-                    options={categories.map(c => ({ label: c.name || c.title, value: c.documentId || c.id }))}
-                    value={fieldsToSet?.categories ?? []}
-                    onChange={vals => setFieldsToSet((f: any) => ({ ...f, categories: vals }))}
+            {/* Main Content Section */}
+            <Card
+              title={<span style={{ fontWeight: 700, fontSize: 20, color: '#222' }}>Main Content</span>}
+              size="small"
+              style={{
+                marginBottom: 24,
+                borderRadius: 12,
+                border: 'none',
+                background: '#fff',
+                boxShadow: '0 2px 12px 0 rgba(0,0,0,0.04)',
+              }}
+              headStyle={{ border: 'none', background: 'transparent', padding: '16px 24px 0 24px' }}
+              bodyStyle={{ padding: 24 }}
+            >
+              {/* Row 1: Image preview + thumbnail_url (left), all main fields (right) */}
+              <Row gutter={24}>
+                <Col xs={24} md={8}>
+                  <div style={{
+                    marginBottom: 16,
+                    textAlign: 'center',
+                    background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
+                    borderRadius: 12,
+                    padding: 24,
+                    boxShadow: '0 1px 8px 0 rgba(0,0,0,0.04)',
+                  }}>
+                    {fieldsToSet?.thumbnail_url ? (
+                      <img
+                        src={fieldsToSet.thumbnail_url}
+                        alt="Thumbnail Preview"
+                        style={{
+                          width: '100%',
+                          maxWidth: 240,
+                          height: 140,
+                          objectFit: 'cover',
+                          borderRadius: 8,
+                          border: '1px solid #eee',
+                          background: '#fafafa',
+                          margin: '0 auto 8px auto',
+                          display: 'block',
+                        }}
+                        onError={e => (e.currentTarget.style.display = 'none')}
+                      />
+                    ) : (
+                      <div style={{
+                        width: 240,
+                        height: 140,
+                        background: '#f5f5f5',
+                        border: '1px solid #eee',
+                        borderRadius: 8,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#bbb',
+                        margin: '0 auto 8px auto',
+                        fontSize: 14,
+                      }}>
+                        No Thumbnail
+                      </div>
+                    )}
+                    <Form.Item name="thumbnail_url" label={<span style={{ fontWeight: 500 }}>Thumbnail URL</span>} style={{ marginBottom: 0 }}>
+                      <Input
+                        value={fieldsToSet?.thumbnail_url ?? ''}
+                        onChange={e => setFieldsToSet((f: any) => ({ ...f, thumbnail_url: e.target.value }))}
+                        placeholder="Paste or drop image URL here"
+                        style={{ borderRadius: 8, background: '#f8fafc', border: '1px solid #e2e8f0' }}
+                        allowClear
+                      />
+                    </Form.Item>
+                  </div>
+                </Col>
+                <Col xs={24} md={16}>
+                  <div style={{ background: '#f8fafc', borderRadius: 12, padding: 24, boxShadow: '0 1px 8px 0 rgba(0,0,0,0.03)' }}>
+                    <Row gutter={16} style={{ marginBottom: 0 }}>
+                      <Col xs={24} md={12}>
+                        <Form.Item name="title" label="Title">
+                          <Input value={fieldsToSet?.title ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, title: e.target.value }))} />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={24} md={12}>
+                        <Form.Item name="slug" label="Slug">
+                          <Input value={fieldsToSet?.slug ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, slug: e.target.value }))} />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                    <Row gutter={16} style={{ marginBottom: 0 }}>
+                      <Col xs={24} md={8}>
+                        <Form.Item name="authors" label="Authors">
+                          <Select
+                            mode="multiple"
+                            options={authors.map(a => ({ label: a.name, value: a.documentId }))}
+                            value={fieldsToSet?.authors ?? []}
+                            disabled
+                            onChange={vals => setFieldsToSet((f: any) => ({ ...f, authors: vals }))}
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={24} md={8}>
+                        <Form.Item name="categories" label="Categories">
+                          <Select
+                            mode="multiple"
+                            options={categories.map(c => ({ label: c.name || c.title, value: c.documentId || c.id }))}
+                            value={fieldsToSet?.categories ?? []}
+                            onChange={vals => setFieldsToSet((f: any) => ({ ...f, categories: vals }))}
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={24} md={8}>
+                        <Form.Item name="tags" label="Tags">
+                          <Select
+                            mode="multiple"
+                            options={tags.map(t => ({ label: t.name || t.title, value: t.documentId || t.id }))}
+                            value={fieldsToSet?.tags ?? []}
+                            onChange={vals => setFieldsToSet((f: any) => ({ ...f, tags: vals }))}
+                          />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                  </div>
+                </Col>
+              </Row>
+            </Card>
+
+            {/* Row 2: Excerpt full width */}
+            <Row gutter={16} style={{ marginTop: 8 }}>
+              <Col span={24}>
+                <Form.Item name="excerpt" label={<span style={{ fontWeight: 500 }}>Excerpt</span>}>
+                  <TextArea
+                    rows={2}
+                    value={fieldsToSet?.excerpt ?? ''}
+                    onChange={e => setFieldsToSet((f: any) => ({ ...f, excerpt: e.target.value }))}
+                    style={{ borderRadius: 8, background: '#f8fafc', border: '1px solid #e2e8f0' }}
+                    placeholder="Short summary for preview..."
+                    allowClear
                   />
-                </Form.Item>
-                <Form.Item name="tags" label="Tags">
-                  <Select
-                    mode="multiple"
-                    options={tags.map(t => ({ label: t.name || t.title, value: t.documentId || t.id }))}
-                    value={fieldsToSet?.tags ?? []}
-                    onChange={vals => setFieldsToSet((f: any) => ({ ...f, tags: vals }))}
-                  />
-                </Form.Item>
-                <Form.Item name="meta_title" label="Meta Title">
-                  <Input value={fieldsToSet?.meta_title ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, meta_title: e.target.value }))} />
-                </Form.Item>
-                <Form.Item name="meta_description" label="Meta Description">
-                  <Input value={fieldsToSet?.meta_description ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, meta_description: e.target.value }))} />
-                </Form.Item>
-                <Form.Item name="canonical_url" label="Canonical URL">
-                  <Input value={fieldsToSet?.canonical_url ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, canonical_url: e.target.value }))} />
-                </Form.Item>
-                <Form.Item name="og_title" label="OG Title">
-                  <Input value={fieldsToSet?.og_title ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, og_title: e.target.value }))} />
-                </Form.Item>
-                <Form.Item name="og_description" label="OG Description">
-                  <Input value={fieldsToSet?.og_description ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, og_description: e.target.value }))} />
-                </Form.Item>
-                <Form.Item name="og_image" label="OG Image URL">
-                  <Input value={fieldsToSet?.og_image ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, og_image: e.target.value }))} />
-                </Form.Item>
-              </Col>
-              <Col xs={24} md={8}>
-                <Form.Item name="twitter_title" label="Twitter Title">
-                  <Input value={fieldsToSet?.twitter_title ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, twitter_title: e.target.value }))} />
-                </Form.Item>
-                <Form.Item name="twitter_description" label="Twitter Description">
-                  <Input value={fieldsToSet?.twitter_description ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, twitter_description: e.target.value }))} />
-                </Form.Item>
-                <Form.Item name="twitter_image" label="Twitter Image URL">
-                  <Input value={fieldsToSet?.twitter_image ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, twitter_image: e.target.value }))} />
-                </Form.Item>
-                <Form.Item name="noindex" valuePropName="checked">
-                  <Checkbox checked={!!fieldsToSet?.noindex} onChange={e => setFieldsToSet((f: any) => ({ ...f, noindex: e.target.checked }))}>Noindex</Checkbox>
-                </Form.Item>
-                <Form.Item name="nofollow" valuePropName="checked">
-                  <Checkbox checked={!!fieldsToSet?.nofollow} onChange={e => setFieldsToSet((f: any) => ({ ...f, nofollow: e.target.checked }))}>Nofollow</Checkbox>
-                </Form.Item>
-                <Form.Item name="json_ld" label="JSON-LD (as JSON)">
-                  <TextArea rows={4} value={fieldsToSet?.json_ld ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, json_ld: e.target.value }))} />
-                </Form.Item>
-                <Form.Item name="authors" label="Authors">
-                  <Select
-                    mode="multiple"
-                    options={authors.map(a => ({ label: a.name, value: a.documentId }))}
-                    value={fieldsToSet?.authors ?? []}
-                    disabled
-                    onChange={vals => setFieldsToSet((f: any) => ({ ...f, authors: vals }))}
-                  />
-                </Form.Item>
-                <Form.Item name="thumbnail_url" label="Thumbnail URL">
-                  <Input value={fieldsToSet?.thumbnail_url ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, thumbnail_url: e.target.value }))} />
-                </Form.Item>
-                <Form.Item name="locale" label="Locale">
-                  <Input value={fieldsToSet?.locale ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, locale: e.target.value }))} />
                 </Form.Item>
               </Col>
             </Row>
-            <div style={{ marginTop: 24, display: 'flex', gap: 16 }}>
-              <Button type="primary" htmlType="submit" size="large" disabled={loading}>Save as Draft</Button>
+
+            {/* Row 3: Content full width */}
+            <Row gutter={16} style={{ marginTop: 8 }}>
+              <Col span={24}>
+                <Form.Item name="content" label={<span style={{ fontWeight: 500 }}>Content</span>}>
+                  <TextArea
+                    rows={8}
+                    value={fieldsToSet?.content ?? ''}
+                    onChange={e => setFieldsToSet((f: any) => ({ ...f, content: e.target.value }))}
+                    style={{ borderRadius: 8, background: '#f8fafc', border: '1px solid #e2e8f0' }}
+                    placeholder="Write your post content here..."
+                    allowClear
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            {/* SEO Section */}
+            <Card
+              title={<span style={{ fontWeight: 700, fontSize: 18, color: '#1e293b' }}>SEO & Social</span>}
+              size="small"
+              style={{
+                marginBottom: 24,
+                borderRadius: 12,
+                border: 'none',
+                background: '#fff',
+                boxShadow: '0 2px 12px 0 rgba(0,0,0,0.04)',
+              }}
+              headStyle={{ border: 'none', background: 'transparent', padding: '16px 24px 0 24px' }}
+              bodyStyle={{ padding: 24 }}
+            >
+              <Row gutter={24}>
+                <Col xs={24} md={8}>
+                  <Form.Item name="meta_title" label="Meta Title">
+                    <Input value={fieldsToSet?.meta_title ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, meta_title: e.target.value }))} />
+                  </Form.Item>
+                  <Form.Item name="meta_description" label="Meta Description">
+                    <Input value={fieldsToSet?.meta_description ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, meta_description: e.target.value }))} />
+                  </Form.Item>
+                  <Form.Item name="canonical_url" label="Canonical URL">
+                    <Input value={fieldsToSet?.canonical_url ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, canonical_url: e.target.value }))} />
+                  </Form.Item>
+                </Col>
+                <Col xs={24} md={8}>
+                  <Form.Item name="og_title" label="OG Title">
+                    <Input value={fieldsToSet?.og_title ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, og_title: e.target.value }))} />
+                  </Form.Item>
+                  <Form.Item name="og_description" label="OG Description">
+                    <Input value={fieldsToSet?.og_description ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, og_description: e.target.value }))} />
+                  </Form.Item>
+                  <Form.Item name="og_image" label="OG Image URL">
+                    <Input value={fieldsToSet?.og_image ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, og_image: e.target.value }))} />
+                  </Form.Item>
+                </Col>
+                <Col xs={24} md={8}>
+                  <Form.Item name="twitter_title" label="Twitter Title">
+                    <Input value={fieldsToSet?.twitter_title ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, twitter_title: e.target.value }))} />
+                  </Form.Item>
+                  <Form.Item name="twitter_description" label="Twitter Description">
+                    <Input value={fieldsToSet?.twitter_description ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, twitter_description: e.target.value }))} />
+                  </Form.Item>
+                  <Form.Item name="twitter_image" label="Twitter Image URL">
+                    <Input value={fieldsToSet?.twitter_image ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, twitter_image: e.target.value }))} />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Card>
+
+            {/* Advanced Section */}
+            <Card
+              title={<span style={{ fontWeight: 700, fontSize: 18, color: '#1e293b' }}>Advanced</span>}
+              size="small"
+              style={{
+                marginBottom: 24,
+                borderRadius: 12,
+                border: 'none',
+                background: '#fff',
+                boxShadow: '0 2px 12px 0 rgba(0,0,0,0.04)',
+              }}
+              headStyle={{ border: 'none', background: 'transparent', padding: '16px 24px 0 24px' }}
+              bodyStyle={{ padding: 24 }}
+            >
+              <Row gutter={24}>
+                <Col xs={24} md={8}>
+                  <Form.Item name="noindex" valuePropName="checked">
+                    <Checkbox checked={!!fieldsToSet?.noindex} onChange={e => setFieldsToSet((f: any) => ({ ...f, noindex: e.target.checked }))}>Noindex</Checkbox>
+                  </Form.Item>
+                  <Form.Item name="nofollow" valuePropName="checked">
+                    <Checkbox checked={!!fieldsToSet?.nofollow} onChange={e => setFieldsToSet((f: any) => ({ ...f, nofollow: e.target.checked }))}>Nofollow</Checkbox>
+                  </Form.Item>
+                </Col>
+                <Col xs={24} md={16}>
+                  <Form.Item name="json_ld" label="JSON-LD (as JSON)">
+                    <TextArea rows={4} value={fieldsToSet?.json_ld ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, json_ld: e.target.value }))} />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Card>
+            <div style={{ marginTop: 32, display: 'flex', gap: 16, justifyContent: 'flex-end' }}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                size="large"
+                style={{
+                  borderRadius: 8,
+                  background: 'linear-gradient(90deg, #2563eb 0%, #1e40af 100%)',
+                  border: 'none',
+                  fontWeight: 700,
+                  letterSpacing: 0.5,
+                  boxShadow: '0 2px 8px 0 rgba(37,99,235,0.08)',
+                }}
+                disabled={loading}
+              >
+                Save as Draft
+              </Button>
               <Button
                 type="default"
                 size="large"
-                style={{ background: '#0066e6', color: '#fff', fontWeight: 600 }}
+                style={{
+                  background: 'linear-gradient(90deg, #06b6d4 0%, #0ea5e9 100%)',
+                  color: '#fff',
+                  fontWeight: 700,
+                  borderRadius: 8,
+                  border: 'none',
+                  letterSpacing: 0.5,
+                  boxShadow: '0 2px 8px 0 rgba(6,182,212,0.08)',
+                }}
                 disabled={loading}
                 onClick={() => {
                   form
