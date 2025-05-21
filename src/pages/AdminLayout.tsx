@@ -1,5 +1,7 @@
 
 import { Layout, Menu, Dropdown, Avatar } from 'antd';
+import React, { useState } from 'react';
+import ChangePasswordModal from '../components/ChangePasswordModal';
 import { CaretDownFilled } from '@ant-design/icons';
 import type { ReactNode } from 'react';
 
@@ -20,6 +22,8 @@ export default function AdminLayout({ children, onLogout, selectedMenu = 'dashbo
       username = localStorage.getItem('username') || 'User';
     } catch {}
   }
+  const [showChangePassword, setShowChangePassword] = useState(false);
+
   return (
     <Layout style={{ minHeight: '100vh', width: '100vw' }}>
       <Header style={{
@@ -59,9 +63,13 @@ export default function AdminLayout({ children, onLogout, selectedMenu = 'dashbo
                 <Menu onClick={({ key }) => {
                   if (key === 'logout') onLogout();
                   if (key === 'edit-profile' && onMenuChange) onMenuChange('edit-profile');
+                  if (key === 'change-password') setShowChangePassword(true);
                 }}>
                   <Menu.Item key="edit-profile" style={{ color: '#0066e6', fontWeight: 600 }}>
                     Edit Profile
+                  </Menu.Item>
+                  <Menu.Item key="change-password" style={{ color: '#0066e6', fontWeight: 600 }}>
+                    Change Password
                   </Menu.Item>
                   <Menu.Item key="logout" style={{ color: '#0066e6', fontWeight: 600 }}>
                     Logout
@@ -82,6 +90,7 @@ export default function AdminLayout({ children, onLogout, selectedMenu = 'dashbo
           )}
         </div>
       </Header>
+      <ChangePasswordModal visible={showChangePassword} onClose={() => setShowChangePassword(false)} onLogout={onLogout} />
       <Content style={{
         margin: '0',
         background: '#f5f6fa',
