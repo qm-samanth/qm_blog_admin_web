@@ -73,10 +73,12 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ visible, onCl
       onCancel={onClose}
       footer={null}
       destroyOnHidden
-      bodyStyle={{
-        background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-        borderRadius: 16,
-        padding: 32,
+      styles={{
+        body: {
+          background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+          borderRadius: 16,
+          padding: 32,
+        }
       }}
       style={{ borderRadius: 16, overflow: 'hidden' }}
     >

@@ -104,6 +104,13 @@ function App() {
     | { page: 'post-form'; documentId?: string };
   const [page, setPage] = useState<PageState>({ page: 'dashboard' });
 
+  // Listen for dashboard-edit-profile event to trigger navigation
+  useEffect(() => {
+    const handler = () => setPage({ page: 'edit-profile' });
+    window.addEventListener('dashboard-edit-profile', handler);
+    return () => window.removeEventListener('dashboard-edit-profile', handler);
+  }, []);
+
   let content;
   if (!isAuthenticated) {
     content = (
