@@ -1,6 +1,7 @@
 import { Card, Col, Row, Statistic, List } from 'antd';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../apiConfig';
 
 
 interface BlogPost {
@@ -46,7 +47,7 @@ export default function Dashboard() {
           return;
         }
         const res = await axios.get(
-          `http://localhost:1337/api/authors?populate[0]=user&populate[1]=blog_posts&filters[user][email][$eq]=${encodeURIComponent(email)}`,
+          `${API_BASE_URL}/authors?populate[0]=user&populate[1]=blog_posts&filters[user][email][$eq]=${encodeURIComponent(email)}`,
           {
             headers: token ? { Authorization: `Bearer ${token}` } : {},
           }

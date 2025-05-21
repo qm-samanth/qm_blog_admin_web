@@ -42,8 +42,15 @@ export default function AdminLayout({ children, onLogout, selectedMenu = 'dashbo
         zIndex: 100
       }}>
         <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-          <div style={{ color: '#fff', fontWeight: 'bold', fontSize: 20, letterSpacing: 1, padding: '0 32px' }}>
-            QM Blog Admin
+          <div
+            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '0 32px', height: 56 }}
+            onClick={() => onMenuChange && onMenuChange('dashboard')}
+          >
+            <img
+              src="https://qualminds.com/images/QM_logo.png"
+              alt="QM Blog Admin"
+              style={{ height: 16, width: 'auto', display: 'block' }}
+            />
           </div>
           <Menu
             mode="horizontal"

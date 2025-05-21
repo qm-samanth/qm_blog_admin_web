@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Form, Input, Button, message } from 'antd';
 import axios from 'axios';
+import API_BASE_URL from '../apiConfig';
 
 interface ChangePasswordModalProps {
   visible: boolean;
@@ -17,7 +18,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ visible, onCl
     try {
       const token = localStorage.getItem('token');
       const res = await axios.post(
-        'http://localhost:1337/api/auth/change-password',
+        `${API_BASE_URL}/auth/change-password`,
         {
           currentPassword: values.currentPassword,
           password: values.password,

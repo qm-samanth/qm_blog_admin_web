@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Form, Input, Button, Select, Checkbox, Row, Col, Spin } from 'antd';
 import axios from 'axios';
+import API_BASE_URL from '../apiConfig';
 
 const { TextArea } = Input;
 
@@ -32,9 +33,9 @@ const PostForm: React.FC<PostFormProps> = ({ documentId }) => {
     // Fetch categories, tags, authors
     try {
       const [catRes, tagRes, authorRes] = await Promise.all([
-        axios.get('http://localhost:1337/api/categories', { headers: token ? { Authorization: `Bearer ${token}` } : {} }),
-        axios.get('http://localhost:1337/api/tags', { headers: token ? { Authorization: `Bearer ${token}` } : {} }),
-        axios.get('http://localhost:1337/api/authors', { headers: token ? { Authorization: `Bearer ${token}` } : {} }),
+        axios.get(`${API_BASE_URL}/categories`, { headers: token ? { Authorization: `Bearer ${token}` } : {} }),
+        axios.get(`${API_BASE_URL}/tags`, { headers: token ? { Authorization: `Bearer ${token}` } : {} }),
+        axios.get(`${API_BASE_URL}/authors`, { headers: token ? { Authorization: `Bearer ${token}` } : {} }),
       ]);
       setCategories(catRes.data.data || []);
       setTags(tagRes.data.data || []);
@@ -47,7 +48,7 @@ const PostForm: React.FC<PostFormProps> = ({ documentId }) => {
   const fetchCurrentAuthor = async () => {
     // Prefill authors with current user
     try {
-      const authorRes = await axios.get('http://localhost:1337/api/authors?populate=user', { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      const authorRes = await axios.get(`${API_BASE_URL}/authors?populate=user`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       const authorsArr = authorRes.data.data || [];
       const currentAuthor = authorsArr.find((a: any) => a.user && (a.user.username === username || a.user.email === username));
       if (currentAuthor) {
@@ -60,7 +61,7 @@ const PostForm: React.FC<PostFormProps> = ({ documentId }) => {
     setLoading(true);
     try {
       // Fetch by documentId (Strapi returns array, but we want the first match)
-      const res = await axios.get(`http://localhost:1337/api/blog-posts?filters[documentId][$eq]=${documentId}&populate=*`,
+      const res = await axios.get(`${API_BASE_URL}/blog-posts?filters[documentId][$eq]=${documentId}&populate=*`,
         { headers: token ? { Authorization: `Bearer ${token}` } : {} }
       );
       const data = res.data.data?.[0] || {};
@@ -97,9 +98,9 @@ const PostForm: React.FC<PostFormProps> = ({ documentId }) => {
         json_ld,
       };
       if (documentId) {
-        await axios.put(`http://localhost:1337/api/blog-posts/${documentId}?status=draft`, { data: payload }, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+        await axios.put(`${API_BASE_URL}/blog-posts/${documentId}?status=draft`, { data: payload }, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       } else {
-        await axios.post('http://localhost:1337/api/blog-posts?status=draft', { data: payload }, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+        await axios.post(`${API_BASE_URL}/blog-posts?status=draft`, { data: payload }, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       }
       // No notification per user preference
     } catch (e) {}

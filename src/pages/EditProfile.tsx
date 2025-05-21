@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, Spin, message, Avatar, Row, Col, Input, Button, Form } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import axios from 'axios';
+import API_BASE_URL from '../apiConfig';
 interface FormValues {
   name: string;
   bio: string;
@@ -35,7 +36,7 @@ const EditProfile: React.FC = () => {
       setLoading(true);
       try {
         // Get author documentId for current user
-        const authorRes = await axios.get('http://localhost:1337/api/authors?populate=user', {
+        const authorRes = await axios.get(`${API_BASE_URL}/authors?populate=user`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         const authors = authorRes.data.data || [];
@@ -47,7 +48,7 @@ const EditProfile: React.FC = () => {
           return;
         }
         // Fetch profile by documentId
-        const res = await axios.get(`http://localhost:1337/api/authors?filters[documentId][$eq]=${authorDocumentId}`,
+        const res = await axios.get(`${API_BASE_URL}/authors?filters[documentId][$eq]=${authorDocumentId}`,
           { headers: token ? { Authorization: `Bearer ${token}` } : {} }
         );
         const data = res.data.data || res.data.body?.data || [];
@@ -83,7 +84,7 @@ const EditProfile: React.FC = () => {
               onFinish={async (values: FormValues) => {
                 setSaving(true);
                 try {
-                  await axios.put(`http://localhost:1337/api/authors/${profile.documentId}`, {
+                  await axios.put(`${API_BASE_URL}/authors/${profile.documentId}`, {
                     data: {
                       name: values.name,
                       bio: values.bio,

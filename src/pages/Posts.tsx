@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Table, Button, Space, Popconfirm, message, Tag, Tooltip } from 'antd';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import axios from 'axios';
+import API_BASE_URL from '../apiConfig';
 
 
 interface BlogPost {
@@ -43,7 +44,7 @@ export default function Posts({ onAddPost, onEditPost }: PostsProps) {
     setLoading(true);
     try {
       // 1. Get author info for current user
-      const authorRes = await axios.get('http://localhost:1337/api/authors?populate=user', {
+      const authorRes = await axios.get(`${API_BASE_URL}/authors?populate=user`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       const authors = authorRes.data.data || [];
@@ -56,12 +57,12 @@ export default function Posts({ onAddPost, onEditPost }: PostsProps) {
       }
       // 2. Fetch published posts for this author
       const publishedPromise = axios.get(
-        `http://localhost:1337/api/blog-posts?populate=authors&status=published&filters[authors][documentId][$eq]=${authorDocumentId}`,
+        `${API_BASE_URL}/blog-posts?populate=authors&status=published&filters[authors][documentId][$eq]=${authorDocumentId}`,
         { headers: token ? { Authorization: `Bearer ${token}` } : {} }
       );
       // 3. Fetch draft posts for this author
       const draftPromise = axios.get(
-        `http://localhost:1337/api/blog-posts?populate=authors&status=draft&filters[authors][documentId][$eq]=${authorDocumentId}`,
+        `${API_BASE_URL}/blog-posts?populate=authors&status=draft&filters[authors][documentId][$eq]=${authorDocumentId}`,
         { headers: token ? { Authorization: `Bearer ${token}` } : {} }
       );
       // Wait for both
@@ -156,7 +157,7 @@ export default function Posts({ onAddPost, onEditPost }: PostsProps) {
       return;
     }
     try {
-      await axios.delete(`http://localhost:1337/api/blog-posts/${documentId}`, {
+      await axios.delete(`${API_BASE_URL}/blog-posts/${documentId}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       message.success('Post deleted');

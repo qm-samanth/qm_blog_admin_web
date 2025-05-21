@@ -7,6 +7,7 @@ import EditProfile from './pages/EditProfile';
 import PostForm from './pages/PostForm';
 import { Form, Input, Button, message } from 'antd';
 import axios from 'axios';
+import API_BASE_URL from './apiConfig';
 import 'antd/dist/reset.css';
 
 function App() {
@@ -70,7 +71,7 @@ function App() {
     setLoginError(null);
     try {
       // Replace with your Strapi backend URL
-      const res = await axios.post('http://localhost:1337/api/auth/local', {
+      const res = await axios.post(`${API_BASE_URL}/auth/local`, {
         identifier: values.identifier,
         password: values.password,
       });
