@@ -31,6 +31,7 @@ const EditProfile: React.FC = () => {
   const username = localStorage.getItem('username');
   const [form] = Form.useForm();
 
+
   useEffect(() => {
     const fetchProfile = async () => {
       setLoading(true);
@@ -94,7 +95,7 @@ const EditProfile: React.FC = () => {
                   }, {
                     headers: token ? { Authorization: `Bearer ${token}` } : {},
                   });
-                  message.success('Profile updated successfully');
+                  message.success('Profile updated successfully', 3);
                   // Update the local profile object
                   setProfile({
                     ...profile,
