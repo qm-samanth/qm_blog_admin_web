@@ -199,35 +199,6 @@ export default function Posts({ onAddPost, onEditPost }: PostsProps) {
 
   const columns = [
     {
-      title: 'Thumbnail',
-      dataIndex: 'thumbnail_url',
-      key: 'thumbnail_url',
-      width: 120,
-      render: (_: any, record: BlogPost) => (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: 100 }}>
-          {record.thumbnail_url ? (
-            <img
-              src={record.thumbnail_url}
-              alt="Thumbnail"
-              style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 6, marginBottom: 8, border: '1px solid #eee' }}
-            />
-          ) : (
-            <div style={{ width: 80, height: 80, background: '#f5f5f5', borderRadius: 6, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#bbb', fontSize: 12 }}>
-              No Image
-            </div>
-          )}
-          <div style={{ width: 80 }}>
-            <input
-              type="text"
-              value={record.thumbnail_url || ''}
-              readOnly
-              style={{ width: '100%', fontSize: 12, padding: 2, border: '1px solid #d9d9d9', borderRadius: 4, background: '#fafafa' }}
-            />
-          </div>
-        </div>
-      ),
-    },
-    {
       title: 'Title',
       dataIndex: 'title',
       key: 'title',
@@ -347,10 +318,12 @@ export default function Posts({ onAddPost, onEditPost }: PostsProps) {
 
   return (
     <div style={{ padding: 32 }}>
-      <h2 style={{ fontWeight: 700, fontSize: 24, marginBottom: 24 }}>My Posts</h2>
-      <Button type="primary" style={{ marginBottom: 16 }} onClick={() => onAddPost && onAddPost()}>
-        New Post
-      </Button>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+        <h2 style={{ fontWeight: 700, fontSize: 24, margin: 0 }}>My Posts</h2>
+        <Button type="primary" onClick={() => onAddPost && onAddPost()} style={{ minWidth: 120, fontWeight: 600, fontSize: 16, borderRadius: 8 }}>
+          New Post
+        </Button>
+      </div>
       <Table
         columns={columns}
         dataSource={posts}

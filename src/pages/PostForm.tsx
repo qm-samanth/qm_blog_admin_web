@@ -432,6 +432,23 @@ const PostForm: React.FC<PostFormProps> = ({ documentId, onSuccess }) => {
             </Card>
             <div style={{ marginTop: 32, display: 'flex', gap: 16, justifyContent: 'flex-end' }}>
               <Button
+                type="default"
+                size="large"
+                style={{
+                  borderRadius: 8,
+                  border: '1px solid #e2e8f0',
+                  fontWeight: 700,
+                  letterSpacing: 0.5,
+                  background: '#fff',
+                }}
+                disabled={loading}
+                onClick={() => {
+                  if (onSuccess) onSuccess();
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
                 type="primary"
                 htmlType="submit"
                 size="large"

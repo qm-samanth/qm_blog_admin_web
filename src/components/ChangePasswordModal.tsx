@@ -55,34 +55,54 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ visible, onCl
 
   return (
     <Modal
-      title="Change Password"
+      title={
+        <div style={{
+          background: 'linear-gradient(90deg, #2563eb 0%, #1e40af 100%)',
+          borderRadius: 12,
+          padding: '16px 0',
+          color: '#fff',
+          fontWeight: 700,
+          fontSize: 20,
+          textAlign: 'center',
+          margin: '-24px -24px 24px -24px',
+        }}>
+          Change Password
+        </div>
+      }
       open={visible}
       onCancel={onClose}
       footer={null}
       destroyOnHidden
+      bodyStyle={{
+        background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+        borderRadius: 16,
+        padding: 32,
+      }}
+      style={{ borderRadius: 16, overflow: 'hidden' }}
     >
       <Form
         form={form}
         layout="vertical"
         onFinish={handleSubmit}
+        style={{ width: '100%' }}
       >
         <Form.Item
           name="currentPassword"
-          label="Current Password"
+          label={<span style={{ fontWeight: 500 }}>Current Password</span>}
           rules={[{ required: true, message: 'Please enter your current password' }]}
         >
-          <Input.Password autoFocus />
+          <Input.Password autoFocus size="large" style={{ borderRadius: 8, background: '#f8fafc', border: '1px solid #e2e8f0' }} />
         </Form.Item>
         <Form.Item
           name="password"
-          label="New Password"
+          label={<span style={{ fontWeight: 500 }}>New Password</span>}
           rules={[{ required: true, message: 'Please enter your new password' }]}
         >
-          <Input.Password />
+          <Input.Password size="large" style={{ borderRadius: 8, background: '#f8fafc', border: '1px solid #e2e8f0' }} />
         </Form.Item>
         <Form.Item
           name="passwordConfirmation"
-          label="Confirm New Password"
+          label={<span style={{ fontWeight: 500 }}>Confirm New Password</span>}
           dependencies={["password"]}
           rules={[
             { required: true, message: 'Please confirm your new password' },
@@ -96,10 +116,26 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ visible, onCl
             }),
           ]}
         >
-          <Input.Password />
+          <Input.Password size="large" style={{ borderRadius: 8, background: '#f8fafc', border: '1px solid #e2e8f0' }} />
         </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit" loading={loading} block>
+        <Form.Item style={{ marginTop: 32 }}>
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={loading}
+            block
+            size="large"
+            style={{
+              borderRadius: 8,
+              background: 'linear-gradient(90deg, #2563eb 0%, #1e40af 100%)',
+              border: 'none',
+              fontWeight: 700,
+              letterSpacing: 0.5,
+              boxShadow: '0 2px 8px 0 rgba(37,99,235,0.08)',
+              fontSize: 16,
+              height: 48,
+            }}
+          >
             Change Password
           </Button>
         </Form.Item>

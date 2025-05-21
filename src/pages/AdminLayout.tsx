@@ -1,5 +1,5 @@
 
-import { Layout, Menu, Dropdown, Avatar } from 'antd';
+import { Layout, Menu, Dropdown, Avatar, Popconfirm } from 'antd';
 import React, { useState } from 'react';
 import ChangePasswordModal from '../components/ChangePasswordModal';
 import { CaretDownFilled } from '@ant-design/icons';
@@ -23,6 +23,7 @@ export default function AdminLayout({ children, onLogout, selectedMenu = 'dashbo
     } catch {}
   }
   const [showChangePassword, setShowChangePassword] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   return (
     <Layout style={{ minHeight: '100vh', width: '100vw' }}>
@@ -65,37 +66,52 @@ export default function AdminLayout({ children, onLogout, selectedMenu = 'dashbo
         </div>
         <div style={{ paddingRight: 32 }}>
           {onLogout && (
-            <Dropdown
-              menu={{
-                items: [
-                  {
-                    key: 'edit-profile',
-                    label: <span style={{ color: '#0066e6', fontWeight: 600 }}>Edit Profile</span>,
-                    onClick: () => onMenuChange && onMenuChange('edit-profile'),
-                  },
-                  {
-                    key: 'change-password',
-                    label: <span style={{ color: '#0066e6', fontWeight: 600 }}>Change Password</span>,
-                    onClick: () => setShowChangePassword(true),
-                  },
-                  {
-                    key: 'logout',
-                    label: <span style={{ color: '#0066e6', fontWeight: 600 }}>Logout</span>,
-                    onClick: () => onLogout(),
-                  },
-                ],
-              }}
-              placement="bottomRight"
-              trigger={["click"]}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: 8 }}>
-                <Avatar style={{ backgroundColor: '#1890ff', verticalAlign: 'middle' }} size="small">
-                  {username.charAt(0).toUpperCase()}
-                </Avatar>
-                <span style={{ fontWeight: 500, color: '#fff' }}>{username}</span>
-                <CaretDownFilled style={{ color: '#fff', fontSize: 14, marginLeft: 2 }} />
-              </div>
-            </Dropdown>
+            <>
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: 'edit-profile',
+                      label: <span style={{ color: '#0066e6', fontWeight: 600 }}>Edit Profile</span>,
+                      onClick: () => onMenuChange && onMenuChange('edit-profile'),
+                    },
+                    {
+                      key: 'change-password',
+                      label: <span style={{ color: '#0066e6', fontWeight: 600 }}>Change Password</span>,
+                      onClick: () => setShowChangePassword(true),
+                    },
+                    {
+                      key: 'logout',
+                      label: <span style={{ color: '#0066e6', fontWeight: 600 }}>Logout</span>,
+                      onClick: () => setShowLogoutConfirm(true),
+                    },
+                  ],
+                }}
+                placement="bottomRight"
+                trigger={["click"]}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: 8 }}>
+                  <Avatar style={{ backgroundColor: '#1890ff', verticalAlign: 'middle' }} size="small">
+                    {username.charAt(0).toUpperCase()}
+                  </Avatar>
+                  <span style={{ fontWeight: 500, color: '#fff' }}>{username}</span>
+                  <CaretDownFilled style={{ color: '#fff', fontSize: 14, marginLeft: 2 }} />
+                </div>
+              </Dropdown>
+              <Popconfirm
+                open={showLogoutConfirm}
+                title={<span>Are you sure you want to logout?</span>}
+                onConfirm={() => {
+                  setShowLogoutConfirm(false);
+                  if (onLogout) onLogout();
+                }}
+                onCancel={() => setShowLogoutConfirm(false)}
+                okText="Yes, Logout"
+                cancelText="Cancel"
+                placement="bottomRight"
+                getPopupContainer={() => document.body}
+              />
+            </>
           )}
         </div>
       </Header>
