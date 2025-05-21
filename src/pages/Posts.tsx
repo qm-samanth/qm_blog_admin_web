@@ -232,8 +232,13 @@ export default function Posts({ onAddPost, onEditPost }: PostsProps) {
       render: (_: any, record: BlogPost & { documentId?: string, _statusType?: string }) => {
         // Always use documentId as string, fallback to id as string
         const docId = record.documentId || String(record.id);
-        // If status is Modified, pass a query param to indicate draft
+        // If status is Modified or Draft, pass a query param to indicate draft
         const isModified = record._statusType === 'Modified';
+        const isDraft = record._statusType === 'Draft';
+        let editDocId = docId;
+        if (isModified || isDraft) {
+          editDocId = `${docId}?status=draft`;
+        }
         return (
           <Space>
             <Tooltip title="Edit">
@@ -242,8 +247,7 @@ export default function Posts({ onAddPost, onEditPost }: PostsProps) {
                 icon={<EditOutlined style={{ color: '#0066e6', fontSize: 18 }} />}
                 onClick={() => {
                   if (onEditPost) {
-                    // Pass docId and status param if modified
-                    onEditPost(isModified ? `${docId}?status=draft` : docId);
+                    onEditPost(editDocId);
                   }
                 }}
               />
