@@ -92,12 +92,12 @@ export default function Dashboard() {
         <h1 style={{ fontWeight: 700, fontSize: 28, margin: 0 }}>Dashboard</h1>
       </div>
       <div style={{ display: 'flex', gap: 24, marginBottom: 32, width: '100%' }}>
-        <Card bordered={false} style={{ flex: 1, boxShadow: '0 1px 4px #e0e0e0' }}><Statistic title="Total Posts" value={stats.total} loading={loading} /></Card>
-        <Card bordered={false} style={{ flex: 1, boxShadow: '0 1px 4px #e0e0e0' }}><Statistic title="Published" value={stats.published} loading={loading} /></Card>
-        <Card bordered={false} style={{ flex: 1, boxShadow: '0 1px 4px #e0e0e0' }}><Statistic title="Drafts" value={stats.drafts} loading={loading} /></Card>
-        <Card bordered={false} style={{ flex: 1, boxShadow: '0 1px 4px #e0e0e0' }}><Statistic title="Scheduled" value={stats.scheduled} loading={loading} /></Card>
+        <Card variant="borderless" style={{ flex: 1, boxShadow: '0 1px 4px #e0e0e0' }}><Statistic title="Total Posts" value={stats.total} loading={loading} /></Card>
+        <Card variant="borderless" style={{ flex: 1, boxShadow: '0 1px 4px #e0e0e0' }}><Statistic title="Published" value={stats.published} loading={loading} /></Card>
+        <Card variant="borderless" style={{ flex: 1, boxShadow: '0 1px 4px #e0e0e0' }}><Statistic title="Drafts" value={stats.drafts} loading={loading} /></Card>
+        <Card variant="borderless" style={{ flex: 1, boxShadow: '0 1px 4px #e0e0e0' }}><Statistic title="Scheduled" value={stats.scheduled} loading={loading} /></Card>
       </div>
-      <Card title={<span style={{ fontWeight: 600 }}>Recent Posts</span>} loading={loading} bordered={false} style={{ marginTop: 24, boxShadow: '0 1px 4px #e0e0e0', width: '100%' }}>
+      <Card title={<span style={{ fontWeight: 600 }}>Recent Posts</span>} loading={loading} variant="borderless" style={{ marginTop: 24, boxShadow: '0 1px 4px #e0e0e0', width: '100%' }}>
         <List
           dataSource={recentPosts.length > 0 ? recentPosts : [{ id: 0, title: 'Demo Post', slug: '', content: '', publishedAt: '' }]}
           locale={{ emptyText: 'No recent posts' }}

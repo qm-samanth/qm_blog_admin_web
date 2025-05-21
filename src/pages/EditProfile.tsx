@@ -190,11 +190,11 @@ const EditProfile: React.FC = () => {
                     <Input.TextArea placeholder="Tell us about yourself..." rows={4} />
                   </Form.Item>
                   <Form.Item name="social_links" label="Social Links (JSON)" style={{ height: 'auto' }}>
-  <Input.TextArea
-    placeholder='{"twitter": "https://twitter.com/yourhandle", "linkedin": "https://linkedin.com/in/yourprofile"}'
-    rows={4}
-  />
-</Form.Item>
+                    <Input.TextArea
+                      placeholder='{"twitter": "https://twitter.com/yourhandle", "linkedin": "https://linkedin.com/in/yourprofile"}'
+                      rows={4}
+                    />
+                  </Form.Item>
                   
                   <div style={{ marginTop: 24, display: 'flex', justifyContent: 'flex-end', gap: 16 }}>
                     <Button 

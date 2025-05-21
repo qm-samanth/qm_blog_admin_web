@@ -66,23 +66,25 @@ export default function AdminLayout({ children, onLogout, selectedMenu = 'dashbo
         <div style={{ paddingRight: 32 }}>
           {onLogout && (
             <Dropdown
-              overlay={
-                <Menu onClick={({ key }) => {
-                  if (key === 'logout') onLogout();
-                  if (key === 'edit-profile' && onMenuChange) onMenuChange('edit-profile');
-                  if (key === 'change-password') setShowChangePassword(true);
-                }}>
-                  <Menu.Item key="edit-profile" style={{ color: '#0066e6', fontWeight: 600 }}>
-                    Edit Profile
-                  </Menu.Item>
-                  <Menu.Item key="change-password" style={{ color: '#0066e6', fontWeight: 600 }}>
-                    Change Password
-                  </Menu.Item>
-                  <Menu.Item key="logout" style={{ color: '#0066e6', fontWeight: 600 }}>
-                    Logout
-                  </Menu.Item>
-                </Menu>
-              }
+              menu={{
+                items: [
+                  {
+                    key: 'edit-profile',
+                    label: <span style={{ color: '#0066e6', fontWeight: 600 }}>Edit Profile</span>,
+                    onClick: () => onMenuChange && onMenuChange('edit-profile'),
+                  },
+                  {
+                    key: 'change-password',
+                    label: <span style={{ color: '#0066e6', fontWeight: 600 }}>Change Password</span>,
+                    onClick: () => setShowChangePassword(true),
+                  },
+                  {
+                    key: 'logout',
+                    label: <span style={{ color: '#0066e6', fontWeight: 600 }}>Logout</span>,
+                    onClick: () => onLogout(),
+                  },
+                ],
+              }}
               placement="bottomRight"
               trigger={["click"]}
             >

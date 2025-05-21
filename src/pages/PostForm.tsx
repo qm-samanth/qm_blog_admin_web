@@ -1,21 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Form, Input, Button, Select, Checkbox, Row, Col, Spin } from 'antd';
+import { Card, Form, Input, Button, Select, Checkbox, Row, Col, Spin, message } from 'antd';
 import axios from 'axios';
 import API_BASE_URL from '../apiConfig';
 
 const { TextArea } = Input;
 
+
 interface PostFormProps {
   documentId?: string; // If present, edit mode
+  onSuccess?: () => void; // Callback to go to post listing
 }
 
-const PostForm: React.FC<PostFormProps> = ({ documentId }) => {
+const PostForm: React.FC<PostFormProps> = ({ documentId, onSuccess }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [initialValues, setInitialValues] = useState<any>({});
   const [categories, setCategories] = useState<any[]>([]);
   const [tags, setTags] = useState<any[]>([]);
   const [authors, setAuthors] = useState<any[]>([]);
+  // const [dummy, setDummy] = useState(false); // no longer needed
+  const [fieldsToSet, setFieldsToSet] = useState<any>(null);
   const token = localStorage.getItem('token');
   const username = localStorage.getItem('username');
 
@@ -28,6 +31,8 @@ const PostForm: React.FC<PostFormProps> = ({ documentId }) => {
     }
     // eslint-disable-next-line
   }, [documentId]);
+
+  // No local state for title; use AntD Form only
 
   const fetchMeta = async () => {
     // Fetch categories, tags, authors
@@ -52,7 +57,7 @@ const PostForm: React.FC<PostFormProps> = ({ documentId }) => {
       const authorsArr = authorRes.data.data || [];
       const currentAuthor = authorsArr.find((a: any) => a.user && (a.user.username === username || a.user.email === username));
       if (currentAuthor) {
-        setInitialValues((prev: any) => ({ ...prev, authors: [currentAuthor.documentId] }));
+        form.setFieldsValue({ authors: [currentAuthor.documentId] });
       }
     } catch (e) {}
   };
@@ -60,32 +65,65 @@ const PostForm: React.FC<PostFormProps> = ({ documentId }) => {
   const fetchPost = async () => {
     setLoading(true);
     try {
+      // Parse status from query param if present (for modified posts)
+      let statusParam = '';
+      if (documentId && documentId.includes('?')) {
+        const parts = documentId.split('?');
+        if (parts[1]) {
+          const params = new URLSearchParams(parts[1]);
+          const status = params.get('status');
+          if (status) {
+            statusParam = `&status=${status}`;
+          }
+        }
+      }
       // Fetch by documentId (Strapi returns array, but we want the first match)
-      const res = await axios.get(`${API_BASE_URL}/blog-posts?filters[documentId][$eq]=${documentId}&populate=*`,
+      const docId = documentId ? documentId.split('?')[0] : '';
+      const res = await axios.get(`${API_BASE_URL}/blog-posts?filters[documentId][$eq]=${docId}&populate=*${statusParam}`,
         { headers: token ? { Authorization: `Bearer ${token}` } : {} }
       );
-      const data = res.data.data?.[0] || {};
-      // Flatten Strapi response if needed
-      setInitialValues({
-        ...data,
+      const raw = res.data.data?.[0] || {};
+      // If Strapi v4+, fields are under attributes
+      const data = raw.attributes ? { ...raw.attributes, id: raw.id, documentId: raw.documentId } : raw;
+      // Debug: log the data received from API before setting form fields
+      console.log('[PostForm] API response for edit:', data);
+      // Reset form before setting fields to ensure clean population
+      form.resetFields();
+      const newFields = {
+        title: data.title || '',
+        slug: data.slug || '',
+        content: data.content || '',
+        excerpt: data.excerpt || '',
+        views: data.views || 0,
+        likes: data.likes || 0,
+        meta_title: data.meta_title || '',
+        meta_description: data.meta_description || '',
+        canonical_url: data.canonical_url || '',
+        og_title: data.og_title || '',
+        og_description: data.og_description || '',
+        og_image: data.og_image || '',
+        twitter_title: data.twitter_title || '',
+        twitter_description: data.twitter_description || '',
+        twitter_image: data.twitter_image || '',
+        noindex: !!data.noindex,
+        nofollow: !!data.nofollow,
+        json_ld: data.json_ld ? JSON.stringify(data.json_ld, null, 2) : '',
         authors: Array.isArray(data.authors) ? data.authors.map((a: any) => a.documentId || a.id) : [],
         categories: Array.isArray(data.categories) ? data.categories.map((c: any) => c.documentId || c.id) : [],
         tags: Array.isArray(data.tags) ? data.tags.map((t: any) => t.documentId || t.id) : [],
-        json_ld: data.json_ld ? JSON.stringify(data.json_ld, null, 2) : '',
-      });
-      // Set form fields directly if form is ready
-      form.setFieldsValue({
-        ...data,
-        authors: Array.isArray(data.authors) ? data.authors.map((a: any) => a.documentId || a.id) : [],
-        categories: Array.isArray(data.categories) ? data.categories.map((c: any) => c.documentId || c.id) : [],
-        tags: Array.isArray(data.tags) ? data.tags.map((t: any) => t.documentId || t.id) : [],
-        json_ld: data.json_ld ? JSON.stringify(data.json_ld, null, 2) : '',
-      });
+        thumbnail_url: data.thumbnail_url || '',
+        locale: data.locale || '',
+      };
+      // Debug: log the fields being set in the form
+      console.log('[PostForm] Fields set in form:', newFields);
+      setFieldsToSet(newFields);
+      // Remove setFieldsValue; rely on initialValues and key for all fields
     } catch (e) {}
     setLoading(false);
   };
 
-  const onFinish = async (values: any) => {
+  // Save as Draft or Publish
+  const onFinish = async (values: any, publish: boolean = false) => {
     setLoading(true);
     try {
       // Parse JSON-LD
@@ -97,14 +135,30 @@ const PostForm: React.FC<PostFormProps> = ({ documentId }) => {
         ...values,
         json_ld,
       };
+      const status = publish ? 'published' : 'draft';
+      let res;
       if (documentId) {
-        await axios.put(`${API_BASE_URL}/blog-posts/${documentId}?status=draft`, { data: payload }, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+        res = await axios.put(`${API_BASE_URL}/blog-posts/${documentId}?status=${status}`, { data: payload }, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       } else {
-        await axios.post(`${API_BASE_URL}/blog-posts?status=draft`, { data: payload }, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+        res = await axios.post(`${API_BASE_URL}/blog-posts?status=${status}`, { data: payload }, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       }
-      // No notification per user preference
-    } catch (e) {}
-    setLoading(false);
+      // Check for error in API response
+      if (res.data && res.data.error) {
+        message.error(res.data.error.message || 'Failed to save post');
+        setLoading(false);
+        return;
+      }
+      message.success('Post saved successfully');
+      setLoading(false);
+      if (onSuccess) {
+        onSuccess();
+      }
+    } catch (e: any) {
+      // Try to extract error message from API response
+      const apiMsg = e?.response?.data?.error?.message || e?.message || 'Failed to save post';
+      message.error(apiMsg);
+      setLoading(false);
+    }
   };
 
   return (
@@ -115,54 +169,124 @@ const PostForm: React.FC<PostFormProps> = ({ documentId }) => {
           <div style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
             <Spin size="large" />
           </div>
-        ) : (
+        ) : null}
+        {!loading && (
           <Form
+            key={documentId || 'new'}
             form={form}
             layout="vertical"
-            initialValues={initialValues}
-            onFinish={onFinish}
+            initialValues={fieldsToSet}
+            onFinish={(values) => onFinish(values, false)}
             style={{ width: '100%' }}
           >
             <Row gutter={24}>
               <Col xs={24} md={8}>
-                <Form.Item name="title" label="Title" rules={[{ required: true, message: 'Title is required' }]}> <Input /> </Form.Item>
-                <Form.Item name="slug" label="Slug" rules={[{ required: true, message: 'Slug is required' }]}> <Input /> </Form.Item>
-                <Form.Item name="content" label="Content" rules={[{ required: true, message: 'Content is required' }]}> <TextArea rows={6} /> </Form.Item>
-                <Form.Item name="excerpt" label="Excerpt"> <TextArea rows={2} /> </Form.Item>
-                <Form.Item name="views" label="Views"><Input type="number" disabled={!documentId} /></Form.Item>
-                <Form.Item name="likes" label="Likes"><Input type="number" disabled={!documentId} /></Form.Item>
+                <Form.Item name="title" label="Title">
+                  <Input value={fieldsToSet?.title ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, title: e.target.value }))} />
+                </Form.Item>
+                <Form.Item name="slug" label="Slug">
+                  <Input value={fieldsToSet?.slug ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, slug: e.target.value }))} />
+                </Form.Item>
+                <Form.Item name="content" label="Content">
+                  <TextArea rows={6} value={fieldsToSet?.content ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, content: e.target.value }))} />
+                </Form.Item>
+                <Form.Item name="excerpt" label="Excerpt">
+                  <TextArea rows={2} value={fieldsToSet?.excerpt ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, excerpt: e.target.value }))} />
+                </Form.Item>
+                <Form.Item name="views" label="Views">
+                  <Input type="number" disabled={!documentId} value={fieldsToSet?.views ?? 0} onChange={e => setFieldsToSet((f: any) => ({ ...f, views: Number(e.target.value) }))} />
+                </Form.Item>
+                <Form.Item name="likes" label="Likes">
+                  <Input type="number" disabled={!documentId} value={fieldsToSet?.likes ?? 0} onChange={e => setFieldsToSet((f: any) => ({ ...f, likes: Number(e.target.value) }))} />
+                </Form.Item>
               </Col>
               <Col xs={24} md={8}>
                 <Form.Item name="categories" label="Categories">
-                  <Select mode="multiple" options={categories.map(c => ({ label: c.name || c.title, value: c.documentId || c.id }))} />
+                  <Select
+                    mode="multiple"
+                    options={categories.map(c => ({ label: c.name || c.title, value: c.documentId || c.id }))}
+                    value={fieldsToSet?.categories ?? []}
+                    onChange={vals => setFieldsToSet((f: any) => ({ ...f, categories: vals }))}
+                  />
                 </Form.Item>
                 <Form.Item name="tags" label="Tags">
-                  <Select mode="multiple" options={tags.map(t => ({ label: t.name || t.title, value: t.documentId || t.id }))} />
+                  <Select
+                    mode="multiple"
+                    options={tags.map(t => ({ label: t.name || t.title, value: t.documentId || t.id }))}
+                    value={fieldsToSet?.tags ?? []}
+                    onChange={vals => setFieldsToSet((f: any) => ({ ...f, tags: vals }))}
+                  />
                 </Form.Item>
-                <Form.Item name="meta_title" label="Meta Title"> <Input /> </Form.Item>
-                <Form.Item name="meta_description" label="Meta Description"> <Input /> </Form.Item>
-                <Form.Item name="canonical_url" label="Canonical URL"> <Input /> </Form.Item>
-                <Form.Item name="og_title" label="OG Title"> <Input /> </Form.Item>
-                <Form.Item name="og_description" label="OG Description"> <Input /> </Form.Item>
-                <Form.Item name="og_image" label="OG Image URL"> <Input /> </Form.Item>
+                <Form.Item name="meta_title" label="Meta Title">
+                  <Input value={fieldsToSet?.meta_title ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, meta_title: e.target.value }))} />
+                </Form.Item>
+                <Form.Item name="meta_description" label="Meta Description">
+                  <Input value={fieldsToSet?.meta_description ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, meta_description: e.target.value }))} />
+                </Form.Item>
+                <Form.Item name="canonical_url" label="Canonical URL">
+                  <Input value={fieldsToSet?.canonical_url ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, canonical_url: e.target.value }))} />
+                </Form.Item>
+                <Form.Item name="og_title" label="OG Title">
+                  <Input value={fieldsToSet?.og_title ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, og_title: e.target.value }))} />
+                </Form.Item>
+                <Form.Item name="og_description" label="OG Description">
+                  <Input value={fieldsToSet?.og_description ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, og_description: e.target.value }))} />
+                </Form.Item>
+                <Form.Item name="og_image" label="OG Image URL">
+                  <Input value={fieldsToSet?.og_image ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, og_image: e.target.value }))} />
+                </Form.Item>
               </Col>
               <Col xs={24} md={8}>
-                <Form.Item name="twitter_title" label="Twitter Title"> <Input /> </Form.Item>
-                <Form.Item name="twitter_description" label="Twitter Description"> <Input /> </Form.Item>
-                <Form.Item name="twitter_image" label="Twitter Image URL"> <Input /> </Form.Item>
-                <Form.Item name="noindex" valuePropName="checked"><Checkbox>Noindex</Checkbox></Form.Item>
-                <Form.Item name="nofollow" valuePropName="checked"><Checkbox>Nofollow</Checkbox></Form.Item>
-                <Form.Item name="json_ld" label="JSON-LD (as JSON)"><TextArea rows={4} /></Form.Item>
-                <Form.Item name="authors" label="Authors">
-                  <Select mode="multiple" options={authors.map(a => ({ label: a.name, value: a.documentId }))} disabled />
+                <Form.Item name="twitter_title" label="Twitter Title">
+                  <Input value={fieldsToSet?.twitter_title ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, twitter_title: e.target.value }))} />
                 </Form.Item>
-                <Form.Item name="thumbnail_url" label="Thumbnail URL"> <Input /> </Form.Item>
-                <Form.Item name="locale" label="Locale"> <Input /> </Form.Item>
+                <Form.Item name="twitter_description" label="Twitter Description">
+                  <Input value={fieldsToSet?.twitter_description ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, twitter_description: e.target.value }))} />
+                </Form.Item>
+                <Form.Item name="twitter_image" label="Twitter Image URL">
+                  <Input value={fieldsToSet?.twitter_image ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, twitter_image: e.target.value }))} />
+                </Form.Item>
+                <Form.Item name="noindex" valuePropName="checked">
+                  <Checkbox checked={!!fieldsToSet?.noindex} onChange={e => setFieldsToSet((f: any) => ({ ...f, noindex: e.target.checked }))}>Noindex</Checkbox>
+                </Form.Item>
+                <Form.Item name="nofollow" valuePropName="checked">
+                  <Checkbox checked={!!fieldsToSet?.nofollow} onChange={e => setFieldsToSet((f: any) => ({ ...f, nofollow: e.target.checked }))}>Nofollow</Checkbox>
+                </Form.Item>
+                <Form.Item name="json_ld" label="JSON-LD (as JSON)">
+                  <TextArea rows={4} value={fieldsToSet?.json_ld ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, json_ld: e.target.value }))} />
+                </Form.Item>
+                <Form.Item name="authors" label="Authors">
+                  <Select
+                    mode="multiple"
+                    options={authors.map(a => ({ label: a.name, value: a.documentId }))}
+                    value={fieldsToSet?.authors ?? []}
+                    disabled
+                    onChange={vals => setFieldsToSet((f: any) => ({ ...f, authors: vals }))}
+                  />
+                </Form.Item>
+                <Form.Item name="thumbnail_url" label="Thumbnail URL">
+                  <Input value={fieldsToSet?.thumbnail_url ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, thumbnail_url: e.target.value }))} />
+                </Form.Item>
+                <Form.Item name="locale" label="Locale">
+                  <Input value={fieldsToSet?.locale ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, locale: e.target.value }))} />
+                </Form.Item>
               </Col>
             </Row>
             <div style={{ marginTop: 24, display: 'flex', gap: 16 }}>
-              <Button type="primary" htmlType="submit" size="large">Save as Draft</Button>
-              {/* Add publish button logic if needed */}
+              <Button type="primary" htmlType="submit" size="large" disabled={loading}>Save as Draft</Button>
+              <Button
+                type="default"
+                size="large"
+                style={{ background: '#0066e6', color: '#fff', fontWeight: 600 }}
+                disabled={loading}
+                onClick={() => {
+                  form
+                    .validateFields()
+                    .then((values) => onFinish(values, true));
+                }}
+              >
+                Publish
+              </Button>
             </div>
           </Form>
         )}

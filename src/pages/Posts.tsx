@@ -229,16 +229,23 @@ export default function Posts({ onAddPost, onEditPost }: PostsProps) {
     {
       title: 'Actions',
       key: 'actions',
-      render: (_: any, record: BlogPost & { documentId?: string }) => {
+      render: (_: any, record: BlogPost & { documentId?: string, _statusType?: string }) => {
         // Always use documentId as string, fallback to id as string
         const docId = record.documentId || String(record.id);
+        // If status is Modified, pass a query param to indicate draft
+        const isModified = record._statusType === 'Modified';
         return (
           <Space>
             <Tooltip title="Edit">
               <Button
                 type="text"
                 icon={<EditOutlined style={{ color: '#0066e6', fontSize: 18 }} />}
-                onClick={() => onEditPost && onEditPost(docId)}
+                onClick={() => {
+                  if (onEditPost) {
+                    // Pass docId and status param if modified
+                    onEditPost(isModified ? `${docId}?status=draft` : docId);
+                  }
+                }}
               />
             </Tooltip>
             <Popconfirm title="Delete this post?" onConfirm={() => handleDelete(docId)} okText="Yes" cancelText="No">
