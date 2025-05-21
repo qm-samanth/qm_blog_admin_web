@@ -74,7 +74,7 @@ export default function Dashboard() {
         const userPosts = currentAuthor ? (currentAuthor.blog_posts || []) : [];
         setStats({
           total: totalPosts, // Use QualMinds total
-          published: userPosts.filter((p: any) => p.blogstatus === 'Published').length,
+          published: userPosts.length, // Use count of all blog_posts for the author
           drafts: userPosts.filter((p: any) => p.blogstatus === 'Draft').length,
           scheduled: userPosts.filter((p: any) => p.blogstatus === 'Scheduled').length,
           authors: currentAuthor ? 1 : 0,
