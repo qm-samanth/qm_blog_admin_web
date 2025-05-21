@@ -225,12 +225,12 @@ function App() {
             letterSpacing: 0.5,
             }}>
             <span style={{
-              fontWeight: 400,
+              fontWeight: 800,
               fontSize: 18,
               color: '#0066e6',
               letterSpacing: 0.5,
             }}>
-              QUALMINDS
+              WELCOME BACK!
              </span>
             </div>
           <Form layout="vertical" onFinish={onFinish} autoComplete="off" style={{ width: '100%' }}>
