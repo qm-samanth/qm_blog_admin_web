@@ -132,7 +132,7 @@ export default function Dashboard() {
               </svg>
             </span>
           </div>
-          <div style={{ fontSize: 16, color: '#1e293b', marginBottom: 32, maxWidth: '90%', wordBreak: 'break-word', lineHeight: 1.6 }}>
+          <div style={{ fontSize: 16, color: '#42474e', marginBottom: 32, maxWidth: '90%', wordBreak: 'break-word', lineHeight: 1.6 }}>
             {authors[0]?.bio && authors[0].bio.trim() !== ''
               ? authors[0].bio
               : 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.'}
