@@ -102,7 +102,33 @@ function App() {
     | { page: 'posts' }
     | { page: 'edit-profile' }
     | { page: 'post-form'; documentId?: string };
-  const [page, setPage] = useState<PageState>({ page: 'dashboard' });
+  // Restore last page from localStorage if available
+  const getInitialPage = (): PageState => {
+    try {
+      const saved = localStorage.getItem('qm_blog_last_page');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Only allow valid pages
+        if (parsed && typeof parsed === 'object' && parsed.page) {
+          if (
+            parsed.page === 'dashboard' ||
+            parsed.page === 'posts' ||
+            parsed.page === 'edit-profile' ||
+            (parsed.page === 'post-form' && (parsed.documentId === undefined || typeof parsed.documentId === 'string'))
+          ) {
+            return parsed;
+          }
+        }
+      }
+    } catch {}
+    return { page: 'dashboard' };
+  };
+  const [page, setPage] = useState<PageState>(getInitialPage());
+
+  // Save page to localStorage on change
+  useEffect(() => {
+    localStorage.setItem('qm_blog_last_page', JSON.stringify(page));
+  }, [page]);
 
   // Listen for dashboard-edit-profile, dashboard-new-post, and dashboard-goto-posts events to trigger navigation
   useEffect(() => {
