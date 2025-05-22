@@ -248,10 +248,11 @@ function App() {
               margin: '0 auto',
             }}>
               {/* Simple triangle icon */}
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                <circle cx="16" cy="16" r="16" fill="#fff" />
-                <polygon points="16,8 24,24 8,24" fill="#0066e6" />
-              </svg>
+              <img
+                src="/smalllogo.png"
+                alt="QM Blog Admin"
+                style={{ height: 35, width: 'auto', display: 'block', maxWidth: '100%' }}
+              />
             </div>
           </div>
           <div style={{
