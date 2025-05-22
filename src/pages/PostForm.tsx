@@ -369,7 +369,14 @@ const PostForm: React.FC<PostFormProps> = ({ documentId, onSuccess }) => {
                     <Input value={fieldsToSet?.meta_title ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, meta_title: e.target.value }))} />
                   </Form.Item>
                   <Form.Item name="meta_description" label="Meta Description">
-                    <Input value={fieldsToSet?.meta_description ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, meta_description: e.target.value }))} />
+                    <TextArea
+                      rows={2}
+                      value={fieldsToSet?.meta_description ?? ''}
+                      onChange={e => setFieldsToSet((f: any) => ({ ...f, meta_description: e.target.value }))}
+                      style={{ borderRadius: 8, background: '#f8fafc', border: '1px solid #e2e8f0' }}
+                      placeholder="Meta description for SEO..."
+                      allowClear
+                    />
                   </Form.Item>
                   <Form.Item name="canonical_url" label="Canonical URL">
                     <Input value={fieldsToSet?.canonical_url ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, canonical_url: e.target.value }))} />
@@ -380,7 +387,14 @@ const PostForm: React.FC<PostFormProps> = ({ documentId, onSuccess }) => {
                     <Input value={fieldsToSet?.og_title ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, og_title: e.target.value }))} />
                   </Form.Item>
                   <Form.Item name="og_description" label="OG Description">
-                    <Input value={fieldsToSet?.og_description ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, og_description: e.target.value }))} />
+                    <TextArea
+                      rows={2}
+                      value={fieldsToSet?.og_description ?? ''}
+                      onChange={e => setFieldsToSet((f: any) => ({ ...f, og_description: e.target.value }))}
+                      style={{ borderRadius: 8, background: '#f8fafc', border: '1px solid #e2e8f0' }}
+                      placeholder="Open Graph description for social sharing..."
+                      allowClear
+                    />
                   </Form.Item>
                   <Form.Item name="og_image" label="OG Image URL">
                     <Input value={fieldsToSet?.og_image ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, og_image: e.target.value }))} />
@@ -391,7 +405,14 @@ const PostForm: React.FC<PostFormProps> = ({ documentId, onSuccess }) => {
                     <Input value={fieldsToSet?.twitter_title ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, twitter_title: e.target.value }))} />
                   </Form.Item>
                   <Form.Item name="twitter_description" label="Twitter Description">
-                    <Input value={fieldsToSet?.twitter_description ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, twitter_description: e.target.value }))} />
+                    <TextArea
+                      rows={2}
+                      value={fieldsToSet?.twitter_description ?? ''}
+                      onChange={e => setFieldsToSet((f: any) => ({ ...f, twitter_description: e.target.value }))}
+                      style={{ borderRadius: 8, background: '#f8fafc', border: '1px solid #e2e8f0' }}
+                      placeholder="Twitter card description..."
+                      allowClear
+                    />
                   </Form.Item>
                   <Form.Item name="twitter_image" label="Twitter Image URL">
                     <Input value={fieldsToSet?.twitter_image ?? ''} onChange={e => setFieldsToSet((f: any) => ({ ...f, twitter_image: e.target.value }))} />
@@ -454,27 +475,28 @@ const PostForm: React.FC<PostFormProps> = ({ documentId, onSuccess }) => {
                 size="large"
                 style={{
                   borderRadius: 8,
-                  background: 'linear-gradient(90deg, #2563eb 0%, #1e40af 100%)',
-                  border: 'none',
+                  background: 'linear-gradient(90deg, #06b6d4 0%, #0ea5e9 100%)',
+                  color: '#fff',
                   fontWeight: 700,
                   letterSpacing: 0.5,
-                  boxShadow: '0 2px 8px 0 rgba(37,99,235,0.08)',
+                  border: 'none',
+                  boxShadow: '0 2px 8px 0 rgba(6,182,212,0.08)',
                 }}
                 disabled={loading}
               >
                 Save as Draft
               </Button>
               <Button
-                type="default"
+                type="primary"
                 size="large"
                 style={{
-                  background: 'linear-gradient(90deg, #06b6d4 0%, #0ea5e9 100%)',
+                  background: 'linear-gradient(90deg, #2563eb 0%, #1e40af 100%)',
                   color: '#fff',
                   fontWeight: 700,
                   borderRadius: 8,
                   border: 'none',
                   letterSpacing: 0.5,
-                  boxShadow: '0 2px 8px 0 rgba(6,182,212,0.08)',
+                  boxShadow: '0 2px 8px 0 rgba(37,99,235,0.08)',
                 }}
                 disabled={loading}
                 onClick={() => {
