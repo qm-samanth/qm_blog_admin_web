@@ -294,7 +294,17 @@ export default function Dashboard() {
               <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
                 <div style={{ fontWeight: 600, fontSize: 17, color: '#222', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.title}</div>
                 <div style={{ color: '#888', fontSize: 13, marginTop: 2 }}>
-                  {`Published: ${item.publishedAt ? new Date(item.publishedAt).toLocaleString() : 'N/A'}`}
+                  {`Published: ${item.publishedAt ?
+                    new Date(item.publishedAt).toLocaleString('en-IN', {
+                      timeZone: 'Asia/Kolkata',
+                      year: 'numeric',
+                      month: 'short',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: true
+                    })
+                    : 'N/A'}`}
                 </div>
                 {item.excerpt && (
                   <div style={{ color: '#444', fontSize: 14, marginTop: 8, lineHeight: 1.5, opacity: 0.85, maxHeight: 48, overflow: 'hidden', textOverflow: 'ellipsis' }}>
