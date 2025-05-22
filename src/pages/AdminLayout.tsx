@@ -50,9 +50,9 @@ export default function AdminLayout({ children, onLogout, selectedMenu = 'dashbo
               onClick={() => onMenuChange && onMenuChange('dashboard')}
             >
               <img
-                src="https://qualminds.com/images/QM_logo.png"
+                src="/logo.png"
                 alt="QM Blog Admin"
-                style={{ height: 16, width: 'auto', display: 'block', maxWidth: '100%' }}
+                style={{ height: 60, width: 'auto', display: 'block', maxWidth: '100%' }}
               />
             </div>
             {/* Desktop Menu (custom, no AntD) */}
