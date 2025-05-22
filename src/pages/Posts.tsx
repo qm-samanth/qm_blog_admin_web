@@ -28,11 +28,64 @@ interface PostsProps {
   onEditPost?: (documentId: string) => void;
 }
 
+
 export default function Posts({ onAddPost, onEditPost }: PostsProps) {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(false);
   const username = localStorage.getItem('username');
   const token = localStorage.getItem('token');
+
+  // Responsive styles for Posts page
+  const postsResponsiveStyle = `
+    @media (max-width: 700px) {
+      .qm-posts-container {
+        padding: 10vw 2vw 24vw 2vw !important;
+      }
+      .qm-posts-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+      }
+      .qm-posts-header h2 {
+        font-size: 20px !important;
+      }
+      .qm-posts-header button {
+        width: 100% !important;
+        min-width: 0 !important;
+        font-size: 15px !important;
+        padding: 8px 0 !important;
+      }
+      .qm-posts-table-scroll {
+        overflow-x: auto !important;
+        min-width: 0 !important;
+        width: 100% !important;
+        min-width: 340px !important;
+        padding-right: 0 !important;
+        margin-right: 0 !important;
+      }
+      .ant-table {
+        min-width: unset !important;
+      }
+      .ant-table-content {
+        margin-right: 0 !important;
+      }
+      .ant-table-cell:last-child {
+        padding-right: 8px !important;
+      }
+      .ant-table-thead > tr > th:last-child,
+      .ant-table-tbody > tr > td:last-child {
+        padding-right: 8px !important;
+      }
+    }
+    @media (max-width: 400px) {
+      .qm-posts-header h2 {
+        font-size: 16px !important;
+      }
+      .qm-posts-header button {
+        font-size: 13px !important;
+      }
+    }
+  `;
 
   useEffect(() => {
     fetchAuthorAndPosts();
@@ -322,20 +375,23 @@ export default function Posts({ onAddPost, onEditPost }: PostsProps) {
 
 
   return (
-    <div style={{ padding: 32 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+    <div className="qm-posts-container" style={{ padding: 32 }}>
+      <style>{postsResponsiveStyle}</style>
+      <div className="qm-posts-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
         <h2 style={{ fontWeight: 700, fontSize: 24, margin: 0 }}>My Posts</h2>
         <Button type="primary" onClick={() => onAddPost && onAddPost()} style={{ minWidth: 120, fontWeight: 600, fontSize: 16, borderRadius: 8 }}>
           New Post
         </Button>
       </div>
-      <Table
-        columns={columns}
-        dataSource={posts}
-        rowKey="id"
-        loading={loading}
-        pagination={{ pageSize: 10 }}
-      />
+      <div className="qm-posts-table-scroll">
+        <Table
+          columns={columns}
+          dataSource={posts}
+          rowKey="id"
+          loading={loading}
+          pagination={{ pageSize: 10 }}
+        />
+      </div>
     </div>
   );
 }
