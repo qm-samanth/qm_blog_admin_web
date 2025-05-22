@@ -98,19 +98,75 @@ export default function AdminLayout({ children, onLogout, selectedMenu = 'dashbo
                   <CaretDownFilled style={{ color: '#fff', fontSize: 14, marginLeft: 2 }} />
                 </div>
               </Dropdown>
-              <Popconfirm
-                open={showLogoutConfirm}
-                title={<span>Are you sure you want to logout?</span>}
-                onConfirm={() => {
-                  setShowLogoutConfirm(false);
-                  if (onLogout) onLogout();
-                }}
-                onCancel={() => setShowLogoutConfirm(false)}
-                okText="Yes, Logout"
-                cancelText="Cancel"
-                placement="bottomRight"
-                getPopupContainer={() => document.body}
-              />
+              {showLogoutConfirm && (
+                <div style={{
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  width: '100vw',
+                  height: '100vh',
+                  zIndex: 2000,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: 'rgba(30, 41, 80, 0.18)',
+                  backdropFilter: 'blur(4px)',
+                  WebkitBackdropFilter: 'blur(4px)'
+                }}>
+                  <div style={{
+                    background: '#fff',
+                    borderRadius: 16,
+                    boxShadow: '0 4px 32px 0 rgba(0,0,0,0.18)',
+                    padding: '36px 32px 28px 32px',
+                    minWidth: 420,
+                    maxWidth: 520,
+                    width: '100%',
+                    textAlign: 'center',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                  }}>
+                    <div style={{ fontWeight: 700, fontSize: 20, color: '#222', marginBottom: 18 }}>Are you sure you want to logout?</div>
+                    <div style={{ display: 'flex', gap: 18, marginTop: 8 }}>
+                      <button
+                        style={{
+                          background: '#2563eb',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: 8,
+                          fontWeight: 700,
+                          fontSize: 16,
+                          padding: '2.5px 20px',
+                          cursor: 'pointer',
+                          boxShadow: '0 2px 8px 0 rgba(37,99,235,0.08)'
+                        }}
+                        onClick={() => {
+                          setShowLogoutConfirm(false);
+                          if (onLogout) onLogout();
+                        }}
+                      >
+                        Yes, Logout
+                      </button>
+                      <button
+                        style={{
+                          background: '#f3f4f6',
+                          color: '#222',
+                          border: 'none',
+                          borderRadius: 8,
+                          fontWeight: 600,
+                          fontSize: 16,
+                          padding: '2.5px 20px',
+                          cursor: 'pointer',
+                          boxShadow: '0 2px 8px 0 rgba(0,0,0,0.04)'
+                        }}
+                        onClick={() => setShowLogoutConfirm(false)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </>
           )}
         </div>
