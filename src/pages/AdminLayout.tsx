@@ -1,5 +1,5 @@
 
-import { Layout, Menu, Dropdown, Avatar, Drawer } from 'antd';
+import { Layout, Dropdown, Avatar, Drawer } from 'antd';
 import React, { useState } from 'react';
 import ChangePasswordModal from '../components/ChangePasswordModal';
 import { CaretDownFilled } from '@ant-design/icons';
@@ -55,19 +55,47 @@ export default function AdminLayout({ children, onLogout, selectedMenu = 'dashbo
                 style={{ height: 16, width: 'auto', display: 'block', maxWidth: '100%' }}
               />
             </div>
-            {/* Desktop Menu (directly next to logo) */}
-            <div className="qm-desktop-menu" style={{ display: 'flex', alignItems: 'center', marginLeft: 12 }}>
-              <Menu
-                mode="horizontal"
-                selectedKeys={[selectedMenu]}
-                style={{ borderBottom: 'none', fontSize: 16, background: 'transparent' }}
-                items={[
-                  { key: 'dashboard', label: <span style={{ color: '#fff', fontWeight: selectedMenu === 'dashboard' ? 'bold' : 'normal' }}>Dashboard</span> },
-                  { key: 'posts', label: <span style={{ color: '#fff', fontWeight: selectedMenu === 'posts' ? 'bold' : 'normal' }}>Posts</span> },
-                ]}
-                onClick={({ key }) => onMenuChange && onMenuChange(key)}
-              />
-            </div>
+            {/* Desktop Menu (custom, no AntD) */}
+            <nav className="qm-desktop-menu" style={{ display: 'flex', alignItems: 'center', marginLeft: 12, gap: 8 }}>
+              <button
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  outline: 'none',
+                  boxShadow: 'none',
+                  color: '#fff',
+                  fontWeight: selectedMenu === 'dashboard' ? 'bold' : 'normal',
+                  fontSize: 16,
+                  padding: '0 18px',
+                  height: 56,
+                  cursor: 'pointer',
+                  transition: 'border 0.2s',
+                }}
+                onClick={() => onMenuChange && onMenuChange('dashboard')}
+                onMouseDown={e => e.preventDefault()}
+              >
+                Dashboard
+              </button>
+              <button
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  outline: 'none',
+                  boxShadow: 'none',
+                  color: '#fff',
+                  fontWeight: selectedMenu === 'posts' ? 'bold' : 'normal',
+                  fontSize: 16,
+                  padding: '0 18px',
+                  height: 56,
+                  cursor: 'pointer',
+                  transition: 'border 0.2s',
+                }}
+                onClick={() => onMenuChange && onMenuChange('posts')}
+                onMouseDown={e => e.preventDefault()}
+              >
+                Posts
+              </button>
+            </nav>
           </div>
           {/* Hamburger for mobile (moved to right in mobile) */}
           <div className="qm-mobile-hamburger" style={{ display: 'none', alignItems: 'center', marginLeft: 'auto', marginRight: 16 }}>
@@ -93,19 +121,50 @@ export default function AdminLayout({ children, onLogout, selectedMenu = 'dashbo
             width={240}
             className="qm-mobile-drawer"
           >
-            <Menu
-              mode="vertical"
-              selectedKeys={[selectedMenu]}
-              style={{ border: 'none', fontSize: 16, background: 'transparent', paddingTop: 16 }}
-              items={[
-                { key: 'dashboard', label: <span style={{ fontWeight: selectedMenu === 'dashboard' ? 'bold' : 'normal' }}>Dashboard</span> },
-                { key: 'posts', label: <span style={{ fontWeight: selectedMenu === 'posts' ? 'bold' : 'normal' }}>Posts</span> },
-              ]}
-              onClick={({ key }) => {
-                setMobileMenuOpen(false);
-                onMenuChange && onMenuChange(key);
-              }}
-            />
+            <nav style={{ display: 'flex', flexDirection: 'column', paddingTop: 16 }}>
+              <button
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#222',
+                  fontWeight: selectedMenu === 'dashboard' ? 'bold' : 'normal',
+                  fontSize: 16,
+                  padding: '12px 24px',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  borderLeft: selectedMenu === 'dashboard' ? '3px solid #2563eb' : '3px solid transparent',
+                  transition: 'border 0.2s',
+                  width: '100%'
+                }}
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onMenuChange && onMenuChange('dashboard');
+                }}
+              >
+                Dashboard
+              </button>
+              <button
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#222',
+                  fontWeight: selectedMenu === 'posts' ? 'bold' : 'normal',
+                  fontSize: 16,
+                  padding: '12px 24px',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  borderLeft: selectedMenu === 'posts' ? '3px solid #2563eb' : '3px solid transparent',
+                  transition: 'border 0.2s',
+                  width: '100%'
+                }}
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onMenuChange && onMenuChange('posts');
+                }}
+              >
+                Posts
+              </button>
+            </nav>
             <div style={{ borderTop: '1px solid #eee', margin: '16px 0 0 0', padding: '12px 0 0 0' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, paddingLeft: 24 }}>
                 <Avatar style={{ backgroundColor: '#1890ff', verticalAlign: 'middle' }} size="small">
