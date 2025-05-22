@@ -234,7 +234,6 @@ export default function Posts({ onAddPost, onEditPost }: PostsProps) {
         // Always use documentId as string, fallback to id as string
         const docId = record.documentId || String(record.id);
         const id = record.id;
-        // If status is Modified or Draft, pass a query param to indicate draft
         const isModified = record._statusType === 'Modified';
         const isDraft = record._statusType === 'Draft';
         let editDocId = docId;
@@ -242,33 +241,63 @@ export default function Posts({ onAddPost, onEditPost }: PostsProps) {
           editDocId = `${docId}?status=draft`;
         }
 
-        // Handler for discarding draft (Modified)
-        const handleDiscardDraft = async () => {
-          try {
-            await axios.delete(`${API_BASE_URL}/blog-posts/${id}`, {
-              headers: token ? { Authorization: `Bearer ${token}` } : {},
-            });
-            message.success('Draft version discarded');
-            fetchAuthorAndPosts();
-          } catch (e) {
-            message.error('Failed to discard draft');
-          }
-        };
+        // SVG for paper+pen icon
+        const draftEditIcon = (
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style={{ display: 'block' }}>
+            {/* Paper outline */}
+            <rect x="3" y="3" width="14" height="18" rx="2.5" stroke="#1e40af" strokeWidth="1.7" fill="#fff" />
+            {/* Folded corner */}
+            <path d="M17 3v4.5c0 1.1.9 2 2 2H23" stroke="#1e40af" strokeWidth="1.2" fill="none"/>
+            {/* Paper lines */}
+            <line x1="6" y1="7" x2="14" y2="7" stroke="#1e40af" strokeWidth="1.1" strokeLinecap="round" />
+            <line x1="6" y1="10" x2="14" y2="10" stroke="#1e40af" strokeWidth="1.1" strokeLinecap="round" />
+            <line x1="6" y1="13" x2="14" y2="13" stroke="#1e40af" strokeWidth="1.1" strokeLinecap="round" />
+            <line x1="6" y1="16" x2="12" y2="16" stroke="#1e40af" strokeWidth="1.1" strokeLinecap="round" />
+            {/* Pencil */}
+            <rect x="12.7" y="14.7" width="7" height="2.2" rx="1.1" transform="rotate(-45 12.7 14.7)" fill="#fff" stroke="#1e40af" strokeWidth="1.5" />
+            <polygon points="19.5,18.2 20.7,19.4 18.6,20.1" fill="#1e40af" />
+            <rect x="15.2" y="16.1" width="2.2" height="0.5" rx="0.2" transform="rotate(-45 15.2 16.1)" fill="#1e40af" opacity="0.7" />
+          </svg>
+        );
 
         return (
           <Space>
-            <Tooltip title="Edit">
-              <Button
-                type="text"
-                icon={<EditOutlined style={{ color: '#0066e6', fontSize: 18 }} />}
-                onClick={() => {
-                  if (onEditPost) {
-                    onEditPost(editDocId);
-                  }
-                }}
-              />
-            </Tooltip>
-            {isDraft && (
+            {/* Show draft icon for both Draft and Modified */}
+            {(isDraft || isModified) && (
+              <Tooltip title={isDraft ? "Edit Draft" : "Edit Draft (Modified)"}>
+                <Button
+                  type="text"
+                  icon={draftEditIcon}
+                  onClick={() => {
+                    if (onEditPost) {
+                      onEditPost(editDocId);
+                    }
+                  }}
+                />
+              </Tooltip>
+            )}
+            {/* Standard edit icon: open published version for Modified, or for Published posts */}
+            {!isDraft && (
+              <Tooltip title={isModified ? "Edit published" : "Edit"}>
+                <Button
+                  type="text"
+                  icon={<EditOutlined style={{ color: '#0066e6', fontSize: 18 }} />}
+                  onClick={() => {
+                    if (onEditPost) {
+                      // For Modified, open published version (no status param)
+                      if (isModified) {
+                        onEditPost(docId); // published version
+                      } else {
+                        onEditPost(editDocId);
+                      }
+                    }
+                  }}
+                  style={isModified ? { marginLeft: 2 } : {}}
+                />
+              </Tooltip>
+            )}
+            {/* Only show delete for Draft, not for Modified */}
+            {isDraft && !isModified && (
               <Popconfirm
                 title={
                   <span>
@@ -283,31 +312,7 @@ export default function Posts({ onAddPost, onEditPost }: PostsProps) {
                 <Button type="text" icon={<DeleteOutlined style={{ color: '#0066e6', fontSize: 18 }} />} />
               </Popconfirm>
             )}
-            {isModified && (
-              <Popconfirm
-                title={
-                  <span>
-                    Are you sure you want to discard the draft version of this post?<br />
-                    <span style={{ color: '#d46b08', fontWeight: 500 }}>This cannot be undone.</span>
-                  </span>
-                }
-                onConfirm={handleDiscardDraft}
-                okText="Yes, Discard"
-                cancelText="No"
-              >
-                <Tooltip title="Discard Draft (Modified)">
-                  <Button
-                    type="text"
-                    icon={
-                      <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5 6h10M7 6V5a3 3 0 1 1 6 0v1m-9 2v7a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V8H4zm3 3v4m4-4v4" stroke="#d46b08" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    }
-                    style={{ color: '#d46b08' }}
-                  />
-                </Tooltip>
-              </Popconfirm>
-            )}
+            {/* No discard action for Modified posts */}
           </Space>
         );
       },
