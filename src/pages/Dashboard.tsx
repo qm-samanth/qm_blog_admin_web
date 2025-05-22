@@ -105,7 +105,7 @@ export default function Dashboard() {
           return;
         }
         const res = await axios.get(
-          `${API_BASE_URL}/authors?populate[0]=user&filters[user][email][$eq]=${encodeURIComponent(email)}`,
+          `${API_BASE_URL}/authors?populate=*&filters[user][email][$eq]=${encodeURIComponent(email)}`,
           {
             headers: token ? { Authorization: `Bearer ${token}` } : {},
           }
@@ -164,16 +164,28 @@ export default function Dashboard() {
           }
         });
 
+        // For published count, use the number of published posts from author API's blog_posts
+        let publishedCount = 0;
+        if (currentAuthor && Array.isArray(currentAuthor.blog_posts)) {
+          publishedCount = currentAuthor.blog_posts.filter((p: any) => p.publishedAt).length;
+        }
         setStats({
           total: totalPosts, // Use QualMinds total
-          published: publishedPosts.length,
+          published: publishedCount,
           drafts: draftCount,
           modified: modifiedCount,
           authors: currentAuthor ? 1 : 0,
         });
-        // Sort by publishedAt desc, take 5 (from all posts)
-        const sortedPosts = [...allPosts].sort((a, b) => (b.publishedAt || '').localeCompare(a.publishedAt || ''));
-        setRecentPosts(sortedPosts.slice(0, 5));
+        // For recently published section, use only the blog_posts from the author API
+        // Filter for published posts (publishedAt not null), sort by publishedAt desc, take 5
+        let recentPublished: any[] = [];
+        if (currentAuthor && Array.isArray(currentAuthor.blog_posts)) {
+          recentPublished = currentAuthor.blog_posts
+            .filter((p: any) => p.publishedAt)
+            .sort((a: any, b: any) => (b.publishedAt || '').localeCompare(a.publishedAt || ''))
+            .slice(0, 5);
+        }
+        setRecentPosts(recentPublished);
       } catch (e) {
         // handle error
       } finally {
