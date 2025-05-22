@@ -105,7 +105,7 @@ export default function Dashboard() {
           return;
         }
         const res = await axios.get(
-          `${API_BASE_URL}/authors?populate[0]=user&populate[1]=blog_posts&filters[user][email][$eq]=${encodeURIComponent(email)}`,
+          `${API_BASE_URL}/authors?populate[0]=user&filters[user][email][$eq]=${encodeURIComponent(email)}`,
           {
             headers: token ? { Authorization: `Bearer ${token}` } : {},
           }
@@ -114,16 +114,65 @@ export default function Dashboard() {
         setAuthors(authorsData);
         // There should be only one author for the logged-in user
         const currentAuthor = authorsData[0];
-        const userPosts = currentAuthor ? (currentAuthor.blog_posts || []) : [];
+        // Use the correct author documentId for API param
+        const authorDocumentId = currentAuthor?.documentId;
+        let allPosts: any[] = [];
+        let publishedPosts: any[] = [];
+        let draftPosts: any[] = [];
+        if (authorDocumentId) {
+          // Fetch both published and draft posts for this author using documentId
+          const [publishedRes, draftRes] = await Promise.all([
+            axios.get(`http://localhost:1337/api/blog-posts?populate=authors&status=published&filters[authors][documentId][$eq]=${authorDocumentId}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} }),
+            axios.get(`http://localhost:1337/api/blog-posts?populate=authors&status=draft&filters[authors][documentId][$eq]=${authorDocumentId}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+          ]);
+          publishedPosts = publishedRes.data.data || [];
+          draftPosts = draftRes.data.data || [];
+          allPosts = [...publishedPosts, ...draftPosts];
+        }
+        // Count unique documentIds
+        const docIdCounts: { [docId: string]: number } = {};
+        allPosts.forEach((p: any) => {
+          if (p.documentId) {
+            docIdCounts[p.documentId] = (docIdCounts[p.documentId] || 0) + 1;
+          }
+        });
+        // Drafts: unique documentId, publishedAt is null
+        const draftCount = allPosts.filter(
+          (p: any) => docIdCounts[p.documentId] === 1 && !p.publishedAt
+        ).length;
+
+        // Modified: For each documentId in both published and draft posts,
+        // count the number of draft posts where updatedAt > publishedAt and publishedAt is null
+        // (Assume updatedAt and publishedAt are ISO strings)
+        let modifiedCount = 0;
+        // Build maps for quick lookup
+        const publishedByDocId: { [docId: string]: any } = {};
+        publishedPosts.forEach((p: any) => {
+          if (p.documentId) publishedByDocId[p.documentId] = p;
+        });
+        draftPosts.forEach((draft: any) => {
+          const docId = draft.documentId;
+          if (
+            docId &&
+            publishedByDocId[docId] &&
+            draft.publishedAt == null &&
+            draft.updatedAt &&
+            publishedByDocId[docId].publishedAt &&
+            new Date(draft.updatedAt) > new Date(publishedByDocId[docId].publishedAt)
+          ) {
+            modifiedCount++;
+          }
+        });
+
         setStats({
           total: totalPosts, // Use QualMinds total
-          published: userPosts.length, // Use count of all blog_posts for the author
-          drafts: userPosts.filter((p: any) => p.blogstatus === 'Draft').length,
-          modified: userPosts.filter((p: any) => p.blogstatus === 'Modified').length,
+          published: publishedPosts.length,
+          drafts: draftCount,
+          modified: modifiedCount,
           authors: currentAuthor ? 1 : 0,
         });
-        // Sort by publishedAt desc, take 5
-        const sortedPosts = [...userPosts].sort((a, b) => (b.publishedAt || '').localeCompare(a.publishedAt || ''));
+        // Sort by publishedAt desc, take 5 (from all posts)
+        const sortedPosts = [...allPosts].sort((a, b) => (b.publishedAt || '').localeCompare(a.publishedAt || ''));
         setRecentPosts(sortedPosts.slice(0, 5));
       } catch (e) {
         // handle error
