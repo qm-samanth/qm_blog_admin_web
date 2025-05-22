@@ -57,8 +57,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ visible, onCl
     <Modal
       title={
         <div style={{
-          background: 'linear-gradient(90deg, #2563eb 0%, #1e40af 100%)',
-          borderRadius: 12,
+          background: '#2563eb',
           padding: '16px 0',
           color: '#fff',
           fontWeight: 700,
@@ -75,8 +74,8 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ visible, onCl
       destroyOnHidden
       styles={{
         body: {
-          background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-          borderRadius: 16,
+          background: '#f8fafc',
+          borderRadius: 8,
           padding: 32,
         }
       }}
@@ -129,7 +128,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ visible, onCl
             size="large"
             style={{
               borderRadius: 8,
-              background: 'linear-gradient(90deg, #2563eb 0%, #1e40af 100%)',
+              background: '#2563eb',
               border: 'none',
               fontWeight: 700,
               letterSpacing: 0.5,
