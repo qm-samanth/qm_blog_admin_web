@@ -31,7 +31,7 @@ export default function Dashboard() {
     total: 0, // This will be set from QualMinds API
     published: 0,
     drafts: 0,
-    scheduled: 0,
+    modified: 0,
     authors: 0,
   });
   const [recentPosts, setRecentPosts] = useState<BlogPost[]>([]);
@@ -76,7 +76,7 @@ export default function Dashboard() {
           total: totalPosts, // Use QualMinds total
           published: userPosts.length, // Use count of all blog_posts for the author
           drafts: userPosts.filter((p: any) => p.blogstatus === 'Draft').length,
-          scheduled: userPosts.filter((p: any) => p.blogstatus === 'Scheduled').length,
+          modified: userPosts.filter((p: any) => p.blogstatus === 'Modified').length,
           authors: currentAuthor ? 1 : 0,
         });
         // Sort by publishedAt desc, take 5
@@ -245,14 +245,14 @@ export default function Dashboard() {
             <div style={{ color: '#222', fontWeight: 700, fontSize: 22, marginTop: 2 }}>{stats.drafts}</div>
           </div>
         </div>
-        {/* Scheduled - Your Contribution */}
+        {/* Modified - Your Contribution */}
         <div style={{ flex: 1, display: 'flex', minHeight: 90, borderRadius: 8, boxShadow: '0 1px 4px #e0e0e0', background: 'linear-gradient(90deg, #f59e42 0%, #e65100 100%)', overflow: 'hidden' }}>
           <div style={{ flex: '0 0 20%', background: 'linear-gradient(135deg, #2563eb 0%, #1e88e5 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4l3 3" /></svg>
           </div>
           <div style={{ flex: '1 1 80%', background: '#fff', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '18px 0 18px 18px' }}>
-            <div style={{ color: '#222', fontWeight: 600, fontSize: 13, letterSpacing: 1 }}>SCHEDULED</div>
-            <div style={{ color: '#222', fontWeight: 700, fontSize: 22, marginTop: 2 }}>{stats.scheduled}</div>
+            <div style={{ color: '#222', fontWeight: 600, fontSize: 13, letterSpacing: 1 }}>MODIFIED</div>
+            <div style={{ color: '#222', fontWeight: 700, fontSize: 22, marginTop: 2 }}>{stats.modified}</div>
           </div>
         </div>
       </div>
