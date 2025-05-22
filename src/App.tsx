@@ -104,11 +104,23 @@ function App() {
     | { page: 'post-form'; documentId?: string };
   const [page, setPage] = useState<PageState>({ page: 'dashboard' });
 
-  // Listen for dashboard-edit-profile event to trigger navigation
+  // Listen for dashboard-edit-profile, dashboard-new-post, and dashboard-goto-posts events to trigger navigation
   useEffect(() => {
-    const handler = () => setPage({ page: 'edit-profile' });
-    window.addEventListener('dashboard-edit-profile', handler);
-    return () => window.removeEventListener('dashboard-edit-profile', handler);
+    const editProfileHandler = () => setPage({ page: 'edit-profile' });
+    const newPostHandler = (_e: any) => {
+      setPage({ page: 'post-form' });
+    };
+    const gotoPostsHandler = (_e: any) => {
+      setPage({ page: 'posts' });
+    };
+    window.addEventListener('dashboard-edit-profile', editProfileHandler);
+    window.addEventListener('dashboard-new-post', newPostHandler);
+    window.addEventListener('dashboard-goto-posts', gotoPostsHandler);
+    return () => {
+      window.removeEventListener('dashboard-edit-profile', editProfileHandler);
+      window.removeEventListener('dashboard-new-post', newPostHandler);
+      window.removeEventListener('dashboard-goto-posts', gotoPostsHandler);
+    };
   }, []);
 
   let content;

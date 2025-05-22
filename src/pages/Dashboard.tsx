@@ -165,13 +165,9 @@ export default function Dashboard() {
               marginTop: 8,
             }}
             onClick={() => {
-              // Use the same navigation as Posts.tsx New Post button
-              if (window.__QM_ON_ADD_POST__) {
-                window.__QM_ON_ADD_POST__();
-              } else {
-                const event = new CustomEvent('dashboard-new-post', { detail: { create: true } });
-                window.dispatchEvent(event);
-              }
+              // Open blank post form (SPA navigation)
+              const event = new CustomEvent('dashboard-new-post', { detail: { create: true, blank: true } });
+              window.dispatchEvent(event);
             }}
           >
             Write a new post
@@ -271,9 +267,15 @@ export default function Dashboard() {
                 transition: 'box-shadow 0.2s',
                 gap: 18,
                 position: 'relative',
+                cursor: 'pointer',
               }}
               onMouseOver={e => (e.currentTarget.style.boxShadow = '0 4px 16px #b6d0f7')}
               onMouseOut={e => (e.currentTarget.style.boxShadow = '0 1px 4px #e0e0e0')}
+              onClick={() => {
+                // SPA navigation to posts list page (emit event for App handler)
+                const event = new CustomEvent('dashboard-goto-posts');
+                window.dispatchEvent(event);
+              }}
             >
               {/* Icon/Avatar */}
               <div style={{
