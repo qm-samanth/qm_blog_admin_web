@@ -25,6 +25,49 @@ interface Author {
 
 
 export default function Dashboard() {
+  // Responsive styles for dashboard
+  const dashboardResponsiveStyle = `
+    @media (max-width: 900px) {
+      .qm-dashboard-banner {
+        flex-direction: column !important;
+        padding: 24px 10px !important;
+        min-height: 120px !important;
+        gap: 18px !important;
+      }
+      .qm-dashboard-banner .qm-banner-left {
+        max-width: 100% !important;
+        min-width: 0 !important;
+      }
+      .qm-dashboard-banner .qm-banner-right {
+        margin-left: 0 !important;
+        margin-top: 18px !important;
+        justify-content: center !important;
+      }
+      .qm-dashboard-stats-row {
+        flex-direction: column !important;
+        gap: 16px !important;
+      }
+    }
+    @media (max-width: 600px) {
+      .qm-dashboard-banner {
+        padding: 12px 2vw !important;
+        min-height: 80px !important;
+      }
+      .qm-dashboard-banner .qm-banner-left > div:first-child {
+        font-size: 20px !important;
+      }
+      .qm-dashboard-banner .qm-banner-right img {
+        height: 80px !important;
+        width: 80px !important;
+      }
+      .qm-dashboard-stats-row > div {
+        min-height: 60px !important;
+      }
+      .qm-dashboard-recent-card .ant-card-body {
+        padding: 8px 2vw !important;
+      }
+    }
+  `;
   const [authors, setAuthors] = useState<Author[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -96,8 +139,9 @@ export default function Dashboard() {
 
   return (
     <>
+      <style>{dashboardResponsiveStyle}</style>
       {/* Modern Welcome Banner */}
-      <div style={{
+      <div className="qm-dashboard-banner" style={{
         background: 'linear-gradient(90deg, #e0edfa 0%, #c7e0fa 100%)',
         borderRadius: 20,
         display: 'flex',
@@ -111,7 +155,7 @@ export default function Dashboard() {
         overflow: 'hidden',
         width: '100%'
       }}>
-        <div style={{ flex: '0 1 80%', minWidth: 220, maxWidth: '80%' }}>
+        <div className="qm-banner-left" style={{ flex: '0 1 80%', minWidth: 220, maxWidth: '80%' }}>
           <div style={{ display: 'flex', alignItems: 'center', fontWeight: 700, fontSize: 30, color: '#222', marginBottom: 12, wordBreak: 'break-word' }}>
             <span>Hello {authorName}!</span>
             <span
@@ -174,7 +218,7 @@ export default function Dashboard() {
           </button>
         </div>
         {/* Profile picture or illustration (right) */}
-        <div style={{ flex: '0 1 20%', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minWidth: 120, maxWidth: '20%' }}>
+        <div className="qm-banner-right" style={{ flex: '0 1 20%', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', minWidth: 120, maxWidth: '20%' }}>
           {authors[0]?.profile_pic_url ? (
             <img
               src={authors[0].profile_pic_url}
@@ -210,7 +254,7 @@ export default function Dashboard() {
           Your Contribution
         </div>
       </div>
-      <div style={{ display: 'flex', gap: 24, marginBottom: 32, width: '100%' }}>
+      <div className="qm-dashboard-stats-row" style={{ display: 'flex', gap: 24, marginBottom: 32, width: '100%' }}>
         {/* (Total Posts) - QualMinds */}
         <div style={{ flex: 1, display: 'flex', minHeight: 90, borderRadius: 8, boxShadow: '0 1px 4px #e0e0e0', background: 'linear-gradient(90deg, #2563eb 0%, #1e40af 100%)', overflow: 'hidden' }}>
           <div style={{ flex: '0 0 20%', background: 'linear-gradient(135deg, #2563eb 0%, #1e88e5 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -252,7 +296,7 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-      <Card title={<span style={{ fontWeight: 600 }}>Recently Published</span>} loading={loading} variant="borderless" style={{ marginTop: 24, boxShadow: '0 1px 4px #e0e0e0', width: '100%', minHeight: 480 }}>
+      <Card className="qm-dashboard-recent-card" title={<span style={{ fontWeight: 600 }}>Recently Published</span>} loading={loading} variant="borderless" style={{ marginTop: 24, boxShadow: '0 1px 4px #e0e0e0', width: '100%', minHeight: 480 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18, padding: '8px 0', minHeight: 220 }}>
           {(recentPosts.length > 0 ? recentPosts : [{ id: 0, title: 'Demo Post', slug: '', content: '', publishedAt: '', excerpt: '' }]).map((item, idx) => (
             <div

@@ -1,5 +1,5 @@
 
-import { Layout, Menu, Dropdown, Avatar, Popconfirm } from 'antd';
+import { Layout, Menu, Dropdown, Avatar, Drawer } from 'antd';
 import React, { useState } from 'react';
 import ChangePasswordModal from '../components/ChangePasswordModal';
 import { CaretDownFilled } from '@ant-design/icons';
@@ -13,6 +13,7 @@ interface AdminLayoutProps {
 }
 
 export default function AdminLayout({ children, onLogout, selectedMenu = 'dashboard', onMenuChange }: AdminLayoutProps & { selectedMenu?: string, onMenuChange?: (key: string) => void }) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   // Extract username from JWT in localStorage
   let username = 'User';
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -42,29 +43,109 @@ export default function AdminLayout({ children, onLogout, selectedMenu = 'dashbo
         width: '100%',
         zIndex: 100
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-          <div
-            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '0 32px', height: 56 }}
-            onClick={() => onMenuChange && onMenuChange('dashboard')}
-          >
-            <img
-              src="https://qualminds.com/images/QM_logo.png"
-              alt="QM Blog Admin"
-              style={{ height: 16, width: 'auto', display: 'block' }}
-            />
+        <div style={{ display: 'flex', alignItems: 'center', height: '100%', width: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div
+              style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '0 32px', height: 56 }}
+              onClick={() => onMenuChange && onMenuChange('dashboard')}
+            >
+              <img
+                src="https://qualminds.com/images/QM_logo.png"
+                alt="QM Blog Admin"
+                style={{ height: 16, width: 'auto', display: 'block', maxWidth: '100%' }}
+              />
+            </div>
+            {/* Desktop Menu (directly next to logo) */}
+            <div className="qm-desktop-menu" style={{ display: 'flex', alignItems: 'center', marginLeft: 12 }}>
+              <Menu
+                mode="horizontal"
+                selectedKeys={[selectedMenu]}
+                style={{ borderBottom: 'none', fontSize: 16, background: 'transparent' }}
+                items={[
+                  { key: 'dashboard', label: <span style={{ color: '#fff', fontWeight: selectedMenu === 'dashboard' ? 'bold' : 'normal' }}>Dashboard</span> },
+                  { key: 'posts', label: <span style={{ color: '#fff', fontWeight: selectedMenu === 'posts' ? 'bold' : 'normal' }}>Posts</span> },
+                ]}
+                onClick={({ key }) => onMenuChange && onMenuChange(key)}
+              />
+            </div>
           </div>
-          <Menu
-            mode="horizontal"
-            selectedKeys={[selectedMenu]}
-            style={{ borderBottom: 'none', fontSize: 16, minWidth: 500, background: 'transparent' }}
-            items={[
-              { key: 'dashboard', label: <span style={{ color: '#fff', fontWeight: selectedMenu === 'dashboard' ? 'bold' : 'normal' }}>Dashboard</span> },
-              { key: 'posts', label: <span style={{ color: '#fff', fontWeight: selectedMenu === 'posts' ? 'bold' : 'normal' }}>Posts</span> },
-            ]}
-            onClick={({ key }) => onMenuChange && onMenuChange(key)}
-          />
+          {/* Hamburger for mobile (moved to right in mobile) */}
+          <div className="qm-mobile-hamburger" style={{ display: 'none', alignItems: 'center', marginLeft: 'auto', marginRight: 16 }}>
+            <button
+              aria-label="Open menu"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, margin: 0, height: 40, width: 40, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              onClick={() => setMobileMenuOpen(true)}
+            >
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="4" y1="6" x2="20" y2="6" />
+                <line x1="4" y1="12" x2="20" y2="12" />
+                <line x1="4" y1="18" x2="20" y2="18" />
+              </svg>
+            </button>
+          </div>
+          <Drawer
+            title={<span style={{ fontWeight: 700, fontSize: 18 }}>Menu</span>}
+            placement="left"
+            closable={true}
+            onClose={() => setMobileMenuOpen(false)}
+            open={mobileMenuOpen}
+            bodyStyle={{ padding: 0 }}
+            width={240}
+            className="qm-mobile-drawer"
+          >
+            <Menu
+              mode="vertical"
+              selectedKeys={[selectedMenu]}
+              style={{ border: 'none', fontSize: 16, background: 'transparent', paddingTop: 16 }}
+              items={[
+                { key: 'dashboard', label: <span style={{ fontWeight: selectedMenu === 'dashboard' ? 'bold' : 'normal' }}>Dashboard</span> },
+                { key: 'posts', label: <span style={{ fontWeight: selectedMenu === 'posts' ? 'bold' : 'normal' }}>Posts</span> },
+              ]}
+              onClick={({ key }) => {
+                setMobileMenuOpen(false);
+                onMenuChange && onMenuChange(key);
+              }}
+            />
+            <div style={{ borderTop: '1px solid #eee', margin: '16px 0 0 0', padding: '12px 0 0 0' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, paddingLeft: 24 }}>
+                <Avatar style={{ backgroundColor: '#1890ff', verticalAlign: 'middle' }} size="small">
+                  {username.charAt(0).toUpperCase()}
+                </Avatar>
+                <span style={{ fontWeight: 600, fontSize: 15, color: '#222' }}>{username}</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                <button
+                  style={{
+                    background: 'none', border: 'none', color: '#2563eb', textAlign: 'left', fontWeight: 600, fontSize: 15, padding: '10px 24px', cursor: 'pointer', width: '100%'
+                  }}
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onMenuChange && onMenuChange('edit-profile');
+                  }}
+                >Edit Profile</button>
+                <button
+                  style={{
+                    background: 'none', border: 'none', color: '#2563eb', textAlign: 'left', fontWeight: 600, fontSize: 15, padding: '10px 24px', cursor: 'pointer', width: '100%'
+                  }}
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setShowChangePassword(true);
+                  }}
+                >Change Password</button>
+                <button
+                  style={{
+                    background: 'none', border: 'none', color: '#d46b08', textAlign: 'left', fontWeight: 600, fontSize: 15, padding: '10px 24px', cursor: 'pointer', width: '100%'
+                  }}
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setShowLogoutConfirm(true);
+                  }}
+                >Logout</button>
+              </div>
+            </div>
+          </Drawer>
         </div>
-        <div style={{ paddingRight: 32 }}>
+        <div className="qm-desktop-user-dropdown" style={{ paddingRight: 32 }}>
           {onLogout && (
             <>
               <Dropdown
@@ -171,6 +252,17 @@ export default function AdminLayout({ children, onLogout, selectedMenu = 'dashbo
           )}
         </div>
       </Header>
+      <style>{`
+        @media (max-width: 900px) {
+          .qm-desktop-menu { display: none !important; }
+          .qm-mobile-hamburger { display: flex !important; margin-left: auto !important; margin-right: 16px !important; }
+          .qm-desktop-user-dropdown { display: none !important; }
+        }
+        @media (min-width: 901px) {
+          .qm-mobile-hamburger { display: none !important; }
+          .qm-desktop-user-dropdown { display: block !important; }
+        }
+      `}</style>
       <ChangePasswordModal visible={showChangePassword} onClose={() => setShowChangePassword(false)} onLogout={onLogout} />
       <Content style={{
         margin: '0',
