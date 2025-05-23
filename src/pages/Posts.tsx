@@ -97,12 +97,16 @@ export default function Posts({ onAddPost, onEditPost }: PostsProps) {
   const fetchAuthorAndPosts = async () => {
     setLoading(true);
     try {
-      // 1. Get author info for current user
-      const authorRes = await axios.get(`${API_BASE_URL}/authors?populate=user`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
+      // 1. Get author info for current user (filter by user email)
+      const authorRes = await axios.get(
+        `${API_BASE_URL}/authors?populate=user&filters[user][email][$eq]=${encodeURIComponent(username || '')}`,
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        }
+      );
       const authors = authorRes.data.data || [];
-      const currentAuthor = authors.find((a: any) => a.user && (a.user.username === username || a.user.email === username));
+      // With the filter, should only get the current author
+      const currentAuthor = authors[0];
       const authorDocumentId = currentAuthor ? currentAuthor.documentId : null;
       if (!authorDocumentId) {
         setPosts([]);

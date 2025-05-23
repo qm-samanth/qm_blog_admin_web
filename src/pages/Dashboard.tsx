@@ -90,7 +90,7 @@ export default function Dashboard() {
         // 1. Fetch total posts from QualMinds (all posts)
         let totalPosts = 0;
         try {
-          const totalRes = await axios.get(`${API_BASE_URL}/blog-posts`, {
+          const totalRes = await axios.get(`${API_BASE_URL}/blog-posts?pagination[page]=1&pagination[pageSize]=1`, {
             headers: token ? { Authorization: `Bearer ${token}` } : {},
           });
           totalPosts = totalRes.data?.meta?.pagination?.total || 0;
@@ -413,6 +413,7 @@ export default function Dashboard() {
                     })
                     : 'N/A'}`}
                 </div>
+                {/* Categories and Tags reverted: no display */}
                 {item.excerpt && (
                   <div style={{ color: '#444', fontSize: 14, marginTop: 8, lineHeight: 1.5, opacity: 0.85, maxHeight: 48, overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {item.excerpt}
