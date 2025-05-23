@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Posts from './pages/Posts';
 import EditProfile from './pages/EditProfile';
 import PostForm from './pages/PostForm';
+import Media from './pages/Media';
 import { Form, Input, Button, message } from 'antd';
 import axios from 'axios';
 import API_BASE_URL from './apiConfig';
@@ -101,6 +102,7 @@ function App() {
     | { page: 'dashboard' }
     | { page: 'posts' }
     | { page: 'edit-profile' }
+    | { page: 'media' }
     | { page: 'post-form'; documentId?: string };
   // Restore last page from localStorage if available
   const getInitialPage = (): PageState => {
@@ -114,6 +116,7 @@ function App() {
             parsed.page === 'dashboard' ||
             parsed.page === 'posts' ||
             parsed.page === 'edit-profile' ||
+            parsed.page === 'media' ||
             (parsed.page === 'post-form' && (parsed.documentId === undefined || typeof parsed.documentId === 'string'))
           ) {
             return parsed;
@@ -322,6 +325,7 @@ function App() {
     let selectedMenu = 'dashboard';
     if (page.page === 'posts' || page.page === 'post-form') selectedMenu = 'posts';
     if (page.page === 'edit-profile') selectedMenu = 'edit-profile';
+    if (page.page === 'media') selectedMenu = 'media';
     content = (
       <AdminLayout
         onLogout={handleLogout}
@@ -330,6 +334,7 @@ function App() {
           if (key === 'dashboard') setPage({ page: 'dashboard' });
           if (key === 'posts') setPage({ page: 'posts' });
           if (key === 'edit-profile') setPage({ page: 'edit-profile' });
+          if (key === 'media') setPage({ page: 'media' });
         }}
       >
         {page.page === 'dashboard' && <Dashboard />}
@@ -340,6 +345,7 @@ function App() {
           />
         )}
         {page.page === 'edit-profile' && <EditProfile />}
+        {page.page === 'media' && <Media />}
         {page.page === 'post-form' && (
           <PostForm 
             documentId={page.documentId}

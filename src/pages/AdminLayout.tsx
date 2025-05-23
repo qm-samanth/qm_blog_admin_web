@@ -95,6 +95,25 @@ export default function AdminLayout({ children, onLogout, selectedMenu = 'dashbo
               >
                 Posts
               </button>
+              <button
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  outline: 'none',
+                  boxShadow: 'none',
+                  color: '#fff',
+                  fontWeight: selectedMenu === 'media' ? 'bold' : 'normal',
+                  fontSize: 16,
+                  padding: '0 18px',
+                  height: 56,
+                  cursor: 'pointer',
+                  transition: 'border 0.2s',
+                }}
+                onClick={() => onMenuChange && onMenuChange('media')}
+                onMouseDown={e => e.preventDefault()}
+              >
+                Media
+              </button>
             </nav>
           </div>
           {/* Hamburger for mobile (moved to right in mobile) */}
@@ -163,6 +182,27 @@ export default function AdminLayout({ children, onLogout, selectedMenu = 'dashbo
                 }}
               >
                 Posts
+              </button>
+              <button
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#222',
+                  fontWeight: selectedMenu === 'media' ? 'bold' : 'normal',
+                  fontSize: 16,
+                  padding: '12px 24px',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  borderLeft: selectedMenu === 'media' ? '3px solid #2563eb' : '3px solid transparent',
+                  transition: 'border 0.2s',
+                  width: '100%'
+                }}
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onMenuChange && onMenuChange('media');
+                }}
+              >
+                Media
               </button>
             </nav>
             <div style={{ borderTop: '1px solid #eee', margin: '16px 0 0 0', padding: '12px 0 0 0' }}>
