@@ -90,7 +90,7 @@ export default function Dashboard() {
         // 1. Fetch total posts from QualMinds (all posts)
         let totalPosts = 0;
         try {
-          const totalRes = await axios.get('http://localhost:1337/api/blog-posts', {
+          const totalRes = await axios.get(`${API_BASE_URL}/blog-posts`, {
             headers: token ? { Authorization: `Bearer ${token}` } : {},
           });
           totalPosts = totalRes.data?.meta?.pagination?.total || 0;
@@ -122,8 +122,8 @@ export default function Dashboard() {
         if (authorDocumentId) {
           // Fetch both published and draft posts for this author using documentId
           const [publishedRes, draftRes] = await Promise.all([
-            axios.get(`http://localhost:1337/api/blog-posts?populate=authors&status=published&filters[authors][documentId][$eq]=${authorDocumentId}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} }),
-            axios.get(`http://localhost:1337/api/blog-posts?populate=authors&status=draft&filters[authors][documentId][$eq]=${authorDocumentId}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+            axios.get(`${API_BASE_URL}/blog-posts?populate=authors&status=published&filters[authors][documentId][$eq]=${authorDocumentId}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} }),
+            axios.get(`${API_BASE_URL}/blog-posts?populate=authors&status=draft&filters[authors][documentId][$eq]=${authorDocumentId}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
           ]);
           publishedPosts = publishedRes.data.data || [];
           draftPosts = draftRes.data.data || [];
@@ -253,7 +253,7 @@ export default function Dashboard() {
           <div style={{ fontSize: 16, color: '#42474e', marginBottom: 32, maxWidth: '90%', wordBreak: 'break-word', lineHeight: 1.6 }}>
             {authors[0]?.bio && authors[0].bio.trim() !== ''
               ? authors[0].bio
-              : 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.'}
+              : 'Add your bio to let others know more about you!'}
           </div>
           <button
             style={{
