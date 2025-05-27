@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Spin, message, Avatar, Row, Col, Input, Button, Form } from 'antd';
+import { Card, Spin, message, Row, Col, Input, Button, Form } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import API_BASE_URL from '../apiConfig';

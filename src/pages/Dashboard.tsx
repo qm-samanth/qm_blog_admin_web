@@ -1,4 +1,4 @@
-import { Card, Col, Row, Statistic, List } from 'antd';
+import { Card } from 'antd';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../apiConfig';
@@ -21,6 +21,7 @@ interface Author {
   blog_posts: BlogPost[];
   user: { username: string; email: string };
   profile_pic_url?: string | null;
+  documentId?: string; // Add documentId here
 }
 
 
