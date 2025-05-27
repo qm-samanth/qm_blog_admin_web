@@ -1,4 +1,3 @@
-import React from 'react';
 import MediaManager from '../components/MediaManager';
 
 export default function Media() {

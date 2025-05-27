@@ -1,11 +1,10 @@
-
 import { Layout, Dropdown, Avatar, Drawer } from 'antd';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import ChangePasswordModal from '../components/ChangePasswordModal';
 import { CaretDownFilled } from '@ant-design/icons';
 import type { ReactNode } from 'react';
 
-const { Header, Content, Footer, Sider } = Layout;
+const { Header, Content, Footer } = Layout;
 
 interface AdminLayoutProps {
   children: ReactNode;

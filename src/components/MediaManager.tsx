@@ -10,7 +10,7 @@ interface MediaList {
   files: string[];
 }
 
-const API_BASE = '/api/r2';
+const API_BASE = 'http://localhost:5001/api/r2';
 
 const MediaManager: React.FC = () => {
   const [prefix, setPrefix] = useState('');

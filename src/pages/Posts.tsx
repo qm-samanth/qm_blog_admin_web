@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { Table, Button, Space, Popconfirm, message, Tag, Tooltip } from 'antd';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
@@ -143,7 +142,7 @@ export default function Posts({ onAddPost, onEditPost }: PostsProps) {
         postsByDocId[p.documentId].push(p);
       });
 
-      const mappedPosts = Object.entries(postsByDocId).map(([docId, postsArr]) => {
+      const mappedPosts = Object.entries(postsByDocId).map(([, postsArr]) => {
         if (postsArr.length === 1) {
           // Only one blog for this documentId
           const p = postsArr[0];
@@ -209,13 +208,13 @@ export default function Posts({ onAddPost, onEditPost }: PostsProps) {
   };
 
 
-  const handleDelete = async (documentId: string) => {
-    if (!documentId) {
+  const handleDelete = async (postId: string) => {
+    if (!postId) {
       message.error('Invalid post identifier');
       return;
     }
     try {
-      await axios.delete(`${API_BASE_URL}/blog-posts/${documentId}`, {
+      await axios.delete(`${API_BASE_URL}/blog-posts/${postId}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       message.success('Post deleted');
@@ -290,7 +289,6 @@ export default function Posts({ onAddPost, onEditPost }: PostsProps) {
       render: (_: any, record: BlogPost & { documentId?: string, _statusType?: string }) => {
         // Always use documentId as string, fallback to id as string
         const docId = record.documentId || String(record.id);
-        const id = record.id;
         const isModified = record._statusType === 'Modified';
         const isDraft = record._statusType === 'Draft';
         let editDocId = docId;
